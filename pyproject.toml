@@ -11,6 +11,7 @@ ruff = "^0.7.0"
 python-dotenv = "^1.0.1"
 fastapi = "^0.115.2"
 uvicorn = "^0.32.0"
+passlib = "^1.7.4"
 
 
 [build-system]
