@@ -42,7 +42,7 @@ frogs_table = Table(
     ),
     Column(
         "updated_at",
-        TIMESTAMP ,
+        TIMESTAMP,
         default=func.now(),
         server_default=func.now(),
         onupdate=func.now(),

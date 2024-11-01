@@ -13,7 +13,9 @@ class FrogRepository(FrogProtocol):
 
     @staticmethod
     def _load_frog(row: Row[Any]) -> FrogDomain:
-        return FrogDomain(id=row.id, name=row.name, age=row.age, description=row.description)
+        return FrogDomain(
+            id=row.id, name=row.name, age=row.age, description=row.description
+        )
 
     def _load_frogs(self, rows: Sequence[Row[Any]]) -> list[FrogDomain]:
         return [self._load_frog(row) for row in rows]
@@ -29,12 +31,16 @@ class FrogRepository(FrogProtocol):
         return self._load_frog(result) if result else None
 
     async def create(self, frog: FrogDomain) -> FrogDomain:
-        stmt = frogs_table.insert().values(
-            id=frog.id,
-            name=frog.name,
-            age=frog.age,
-            description=frog.description
-        ).returning(frogs_table.c.id)
+        stmt = (
+            frogs_table.insert()
+            .values(
+                id=frog.id,
+                name=frog.name,
+                age=frog.age,
+                description=frog.description,
+            )
+            .returning(frogs_table.c.id)
+        )
 
         result = await self._session.execute(stmt)
         new_id = result.scalar_one()
@@ -43,13 +49,12 @@ class FrogRepository(FrogProtocol):
             id=new_id,
             name=frog.name,
             age=frog.age,
-            description=frog.description
+            description=frog.description,
         )
 
     async def update(self, frog: FrogDomain) -> bool:
         return False
 
     async def delete_by_id(self, frog_id: int) -> None:
-        stmt = frogs_table.delete().where(frogs_table.c.id==frog_id)
+        stmt = frogs_table.delete().where(frogs_table.c.id == frog_id)
         await self._session.execute(stmt)
-

@@ -6,7 +6,9 @@ from src.domain.models import FrogDomain
 from src.domain.services.frog import FrogService
 
 
-router = APIRouter(prefix="/frogs", tags=["Frooooooogs!"], route_class=DishkaRoute)
+router = APIRouter(
+    prefix="/frogs", tags=["Frooooooogs!"], route_class=DishkaRoute
+)
 
 
 @router.get("/", summary="Get all froogs!")
@@ -32,7 +34,8 @@ async def add(
         return {"message": "frog created :)"}
     except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, detail=f"frog already exists {e}"
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"frog already exists {e}",
         ) from e
 
 
