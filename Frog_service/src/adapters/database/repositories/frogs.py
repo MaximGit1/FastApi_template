@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import Row, select
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import Row, select, update as sa_update
 from typing import Sequence, Any
 
 from src.adapters.database.models import frogs_table
@@ -34,7 +35,7 @@ class FrogRepository(FrogProtocol):
         stmt = (
             frogs_table.insert()
             .values(
-                id=frog.id,
+                # id=frog.id,
                 name=frog.name,
                 age=frog.age,
                 description=frog.description,
@@ -52,12 +53,18 @@ class FrogRepository(FrogProtocol):
             description=frog.description,
         )
 
-    async def update(self, frog: FrogDomain) -> bool:  # error: if frog does not --> frog create
-        try:
-            await self._session.merge(frog)
-        except Exception:
-            return False
-        return True
+    async def update(self, frog: FrogDomain) -> bool:
+        stmt = sa_update(frogs_table).where(frogs_table.c.id == frog.id).values(
+            name=frog.name,
+            age=frog.age,
+            description=frog.description
+        )
+        result = await self._session.execute(stmt)
+
+        if result.rowcount > 0:
+            return True
+
+        return False
 
     async def delete_by_id(self, frog_id: int) -> None:
         stmt = frogs_table.delete().where(frogs_table.c.id == frog_id)

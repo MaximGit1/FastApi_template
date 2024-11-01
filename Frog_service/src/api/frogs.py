@@ -43,10 +43,10 @@ async def create(
 
 @router.put("/update/", summary="Update froooog")
 async def update(
-    frog: FrogSchema, service: FromDishka[FrogService]  # error in repository
+    frog: FrogSchema, service: FromDishka[FrogService]
 ) -> dict[str, str]:
     result = await service.update(frog.to_model())
-    if result:
+    if not result:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="frog does not exist",

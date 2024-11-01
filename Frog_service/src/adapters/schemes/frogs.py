@@ -4,7 +4,7 @@ from src.domain.models import FrogDomain
 
 
 class Frog(BaseModel):
-    id: int
+    # id: int | None = None
     name: str = Field(max_length=15)
     age: int
     description: str | None = Field(max_length=200)
