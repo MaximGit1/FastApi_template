@@ -28,12 +28,12 @@ async def get_by_id(id_: int, service: FromDishka[FrogService]) -> FrogDomain:
 @router.post(
     "/create/", status_code=status.HTTP_201_CREATED, summary="Add frog"
 )
-async def add(
+async def create(
     frog: FrogSchema, service: FromDishka[FrogService]
-) -> dict[str, str]:
+) -> FrogDomain | dict[str, str]:
     try:
-        await service.create(frog.to_model())
-        return {"message": "frog created :)"}
+        new_frog = await service.create(frog.to_model())
+        return new_frog
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
