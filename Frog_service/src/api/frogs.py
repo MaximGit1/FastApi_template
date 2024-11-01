@@ -11,13 +11,13 @@ router = APIRouter(
 )
 
 
-@router.get("/", summary="Get all froogs!")
+@router.get("/", summary="Get all frooogs!")
 async def get_all(service: FromDishka[FrogService]) -> list[FrogDomain]:
     results: list[FrogDomain] = await service.get_all()
     return results
 
 
-@router.get("/{id}", summary="Get froooooog by id")
+@router.get("/{id}/", summary="Get froooooog by id")
 async def get_by_id(id_: int, service: FromDishka[FrogService]) -> FrogDomain:
     result = await service.get_by_id(id_)
     if result is None:
@@ -25,7 +25,9 @@ async def get_by_id(id_: int, service: FromDishka[FrogService]) -> FrogDomain:
     return result
 
 
-@router.post("/add", status_code=status.HTTP_201_CREATED, summary="Add frog")
+@router.post(
+    "/create/", status_code=status.HTTP_201_CREATED, summary="Add frog"
+)
 async def add(
     frog: FrogSchema, service: FromDishka[FrogService]
 ) -> dict[str, str]:
@@ -35,19 +37,19 @@ async def add(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=f"frog already exists {e}",
+            detail="frog already exists",
         ) from e
 
 
-@router.put("/update", summary="Update frog")
+@router.put("/update/", summary="Update froooog")
 async def update(
     frog: FrogSchema, service: FromDishka[FrogService]
 ) -> dict[str, str]:
     await service.update(frog.to_model())
-    return {"message": "fr0_--g updated"}
+    return {"message": "frog updated"}
 
 
-@router.delete("/delete/{id}", summary="Delete frog by id😓")
+@router.delete("/delete/{id}/", summary="Delete frog by id😓")
 async def delete_by_id(
     id_: int, service: FromDishka[FrogService]
 ) -> dict[str, str]:
