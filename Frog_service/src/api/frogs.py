@@ -18,7 +18,9 @@ async def get_all(service: FromDishka[FrogService]) -> list[FrogDomain]:
 
 
 @router.get("/{forg_id}/", summary="Get froooooog by id")
-async def get_by_id(forg_id: int, service: FromDishka[FrogService]) -> FrogDomain:
+async def get_by_id(
+    forg_id: int, service: FromDishka[FrogService]
+) -> FrogDomain:
     result = await service.get_by_id(forg_id)
     if result is None:
         raise HTTPException(status_code=404, detail="frog not found")
@@ -52,7 +54,6 @@ async def update(
             detail="frog does not exist",
         )
     return {"message": "frog updated"}
-
 
 
 @router.delete("/delete/{forg_id}/", summary="Delete frog by id😓")

@@ -13,9 +13,7 @@ fastapi = "^0.115.2"
 uvicorn = "^0.32.0"
 passlib = "^1.7.4"
 sqlalchemy = "^2.0.36"
-python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 bcrypt = "^4.2.0"
-aiosqlite = "^0.20.0"
 alembic = "^1.13.3"
 dishka = "^1.4.0"
 psycopg = {extras = ["binary"], version = "^3.2.3"}

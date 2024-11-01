@@ -32,14 +32,18 @@ class FrogRepository(FrogProtocol):
         return self._load_frog(result) if result else None
 
     async def create(self, frog: FrogDomain) -> FrogDomain:
+        frog_values = {
+            "name": frog.name,
+            "age": frog.age,
+            "description": frog.description,
+        }
+
+        if frog.id:
+            frog_values["id"] = frog.id
+
         stmt = (
             frogs_table.insert()
-            .values(
-                # id=frog.id,
-                name=frog.name,
-                age=frog.age,
-                description=frog.description,
-            )
+            .values(**frog_values)
             .returning(frogs_table.c.id)
         )
 
@@ -54,10 +58,10 @@ class FrogRepository(FrogProtocol):
         )
 
     async def update(self, frog: FrogDomain) -> bool:
-        stmt = sa_update(frogs_table).where(frogs_table.c.id == frog.id).values(
-            name=frog.name,
-            age=frog.age,
-            description=frog.description
+        stmt = (
+            sa_update(frogs_table)
+            .where(frogs_table.c.id == frog.id)
+            .values(name=frog.name, age=frog.age, description=frog.description)
         )
         result = await self._session.execute(stmt)
 
