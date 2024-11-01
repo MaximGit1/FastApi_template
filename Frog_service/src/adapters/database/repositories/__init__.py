@@ -1,0 +1,1 @@
+from .frogs import FrogRepository
