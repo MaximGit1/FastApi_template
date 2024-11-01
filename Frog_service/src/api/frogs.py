@@ -17,9 +17,9 @@ async def get_all(service: FromDishka[FrogService]) -> list[FrogDomain]:
     return results
 
 
-@router.get("/{id}/", summary="Get froooooog by id")
-async def get_by_id(id_: int, service: FromDishka[FrogService]) -> FrogDomain:
-    result = await service.get_by_id(id_)
+@router.get("/{forg_id}/", summary="Get froooooog by id")
+async def get_by_id(forg_id: int, service: FromDishka[FrogService]) -> FrogDomain:
+    result = await service.get_by_id(forg_id)
     if result is None:
         raise HTTPException(status_code=404, detail="frog not found")
     return result
@@ -43,15 +43,21 @@ async def create(
 
 @router.put("/update/", summary="Update froooog")
 async def update(
-    frog: FrogSchema, service: FromDishka[FrogService]
+    frog: FrogSchema, service: FromDishka[FrogService]  # error in repository
 ) -> dict[str, str]:
-    await service.update(frog.to_model())
+    result = await service.update(frog.to_model())
+    if result:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="frog does not exist",
+        )
     return {"message": "frog updated"}
 
 
-@router.delete("/delete/{id}/", summary="Delete frog by id😓")
+
+@router.delete("/delete/{forg_id}/", summary="Delete frog by id😓")
 async def delete_by_id(
-    id_: int, service: FromDishka[FrogService]
+    forg_id: int, service: FromDishka[FrogService]
 ) -> dict[str, str]:
-    await service.delete_by_id(id_)
+    await service.delete_by_id(forg_id)
     return {"message": "frog deleted"}

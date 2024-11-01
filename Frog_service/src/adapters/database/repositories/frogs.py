@@ -52,8 +52,12 @@ class FrogRepository(FrogProtocol):
             description=frog.description,
         )
 
-    async def update(self, frog: FrogDomain) -> bool:
-        return False
+    async def update(self, frog: FrogDomain) -> bool:  # error: if frog does not --> frog create
+        try:
+            await self._session.merge(frog)
+        except Exception:
+            return False
+        return True
 
     async def delete_by_id(self, frog_id: int) -> None:
         stmt = frogs_table.delete().where(frogs_table.c.id == frog_id)
