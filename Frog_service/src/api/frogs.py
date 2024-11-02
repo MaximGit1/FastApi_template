@@ -50,15 +50,15 @@ async def update(
     result = await service.update(frog.to_model())
     if not result:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="frog does not exist",
         )
     return {"message": "frog updated"}
 
 
-@router.delete("/delete/{forg_id}/", summary="Delete frog by id😓")
+@router.delete("/delete/{frog_id}/", summary="Delete frog by id😓")
 async def delete_by_id(
-    forg_id: int, service: FromDishka[FrogService]
+    frog_id: int, service: FromDishka[FrogService]
 ) -> dict[str, str]:
-    await service.delete_by_id(forg_id)
-    return {"message": "frog deleted"}
+    await service.delete_by_id(frog_id)
+    return {"message": "frog has been removed"}

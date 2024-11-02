@@ -1,6 +1,7 @@
 import os
 from collections.abc import AsyncIterator
 from typing import NewType
+from dotenv import load_dotenv
 
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -25,6 +26,8 @@ from src.domain.protocols import (
 )
 from src.domain.services.frog import FrogService
 
+
+load_dotenv()
 DBURI = NewType("DBURI", str)
 
 
