@@ -13,6 +13,7 @@ from src.web import create_app
 
 load_dotenv()
 
+
 @pytest.fixture(scope="session")
 def client() -> Iterator[TestClient]:
     os.environ["POSTGRES_URI"] = os.getenv("POSTGRES_URI_FOR_TESTS")
@@ -34,7 +35,8 @@ async def engine(container: AsyncContainer) -> AsyncEngine:
 @pytest.fixture
 async def session(container: AsyncContainer) -> AsyncIterator[AsyncSession]:
     async with container() as c_request:
-        yield await c_request.get(AsyncSession)
+        session = await c_request.get(AsyncSession)
+        yield session
 
 
 @pytest.fixture(scope="session", autouse=True)
