@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "fastapitemplate"
+name = "frog_serivice"
 version = "0.1.0"
 description = ""
 authors = ["MaximGit1 <allq137x@gmail.com>"]
