@@ -1,22 +1,22 @@
-from enum import Enum
 from typing import ClassVar, Set
+from enum import Enum
 
-from permissions import Permission
+from permissions import GlobalPermission
 
 
 class RolePermission(Enum):
-    GUEST: ClassVar[Set[Permission]] = {
-        Permission.CAN_VIEW_FROG,
+    GUEST: ClassVar[Set[GlobalPermission]] = {
+        GlobalPermission.CAN_VIEW_RESOURCE,
+        GlobalPermission.CAN_VIEW_RESOURCE_DETAIL,
     }
-    DEFAULT: ClassVar[Set[Permission]] = {
+    USER: ClassVar[Set[GlobalPermission]] = {
         *GUEST,
-        Permission.CAN_CREATE_FROG,
-        Permission.CAN_UPDATE_FROG,
-        Permission.CAN_DELETE_FROG,
+        GlobalPermission.CAN_CREATE_RESOURCE,
+        GlobalPermission.CAN_UPDATE_OWN_RESOURCE,
+        GlobalPermission.CAN_DELETE_OWN_RESOURCE,
     }
-    ADMIN: ClassVar[Set[Permission]] = {
-        *DEFAULT,
-        Permission.CAN_VIEW_USERS,
-        Permission.CAN_DELETE_USER,
-        Permission.CAN_UPDATE_USER_ROLE,
+    ADMIN: ClassVar[Set[GlobalPermission]] = {
+        *USER,
+        GlobalPermission.CAN_UPDATE_RESOURCE,
+        GlobalPermission.CAN_DELETE_RESOURCE,
     }
