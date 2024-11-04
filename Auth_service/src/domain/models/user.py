@@ -8,4 +8,5 @@ class User:
     id: int | None = None
     is_active: bool = True
     is_super_user: bool = False
-    role: RolePermission = RolePermission.GUEST
+    role: RolePermission | None = None
+    password: bytes | str | None = None
