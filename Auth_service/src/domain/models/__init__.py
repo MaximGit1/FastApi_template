@@ -1,4 +1,4 @@
-from user import User as UserDomain
+from users import User as UserDomain
 from roles import GlobalPermission as GlobalPermissionDomain
 
 

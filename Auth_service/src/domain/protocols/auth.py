@@ -7,7 +7,7 @@ from src.domain.models import UserDomain, GlobalPermissionDomain
 JWT_TOKEN = NewType("JWT_TOKEN", str)
 
 
-class UserProtocol(Protocol):
+class AuthProtocol(Protocol):
     @abstractmethod
     async def register_user(
         self, nickname: str, password: str
