@@ -2,7 +2,7 @@ from src.domain.models import UserDomain
 from src.domain.protocols import UserProtocol, UowProtocol
 
 
-class FrogService:
+class UserService:
     def __init__(
         self, user_repository: UserProtocol, uow: UowProtocol
     ) -> None:
