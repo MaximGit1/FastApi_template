@@ -4,7 +4,7 @@ from src.domain.models import UserDomain
 from src.domain.models.roles import RolePermission
 
 
-class Frog(BaseModel):
+class UserScheme(BaseModel):
     id: int | None = None
     nickname: str = Field(max_length=15)
     password: bytes | str | None = None
