@@ -9,17 +9,19 @@ class AuthService:
         self._auth_repository = auth_repository
         self._uow = uow
 
-    async def register_user(
-            self, nickname: str, password: str
-    ) -> UserDomain:
-        result = await self._auth_repository.register_user(nickname=nickname, password=password)
+    async def register_user(self, nickname: str, password: str) -> UserDomain:
+        result = await self._auth_repository.register_user(
+            nickname=nickname, password=password
+        )
         await self._uow.commit()
         return result
 
     async def authenticate_user(
         self, nickname: str, password: str
     ) -> JWT_TOKEN:
-        result = await self._auth_repository.authenticate_user(nickname=nickname, password=password)
+        result = await self._auth_repository.authenticate_user(
+            nickname=nickname, password=password
+        )
         await self._uow.commit()
         return result
 
@@ -31,9 +33,8 @@ class AuthService:
     async def check_permission(
         self, user: UserDomain, permission: GlobalPermissionDomain
     ) -> bool:
-        result = await self._auth_repository.check_permission(user=user, permission=permission)
+        result = await self._auth_repository.check_permission(
+            user=user, permission=permission
+        )
         await self._uow.commit()
         return result
-
-
-

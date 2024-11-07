@@ -31,7 +31,13 @@ users_table = Table(
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("nickname", String(15), nullable=False),
     Column("password", String(30), nullable=False),
-    Column("role", String(5), nullable=False, default="GUEST", server_default="GUEST"),
+    Column(
+        "role",
+        String(5),
+        nullable=False,
+        default="GUEST",
+        server_default="GUEST",
+    ),
     Column("is_super_user", Boolean, default=True),
     Column("is_active", Boolean, default=True),
     Column(

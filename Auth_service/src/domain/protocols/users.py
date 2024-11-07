@@ -3,6 +3,7 @@ from typing import Protocol
 
 from src.domain.models import UserDomain
 
+
 class UserProtocol(Protocol):
     @abstractmethod
     async def get_all(self) -> list[UserDomain]: ...

@@ -9,9 +9,7 @@ from src.domain.models import UserDomain
 from src.domain.services.users import UserService
 
 
-router = APIRouter(
-    prefix="/users", tags=["Users"], route_class=DishkaRoute
-)
+router = APIRouter(prefix="/users", tags=["Users"], route_class=DishkaRoute)
 
 
 @router.get("/", summary="Get all users!")

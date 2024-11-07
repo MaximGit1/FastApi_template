@@ -22,7 +22,6 @@ class UserRepository(UserProtocol):
         return role
 
     def _load_user(self, row: Row[Any]) -> UserDomain:
-
         return UserDomain(
             id=row.id,
             nickname=row.nickname,
@@ -90,4 +89,3 @@ class UserRepository(UserProtocol):
     async def delete_by_id(self, user_id: int) -> None:
         stmt = users_table.delete().where(users_table.c.id == user_id)
         await self._session.execute(stmt)
-
