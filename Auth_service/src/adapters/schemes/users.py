@@ -7,8 +7,8 @@ from src.domain.models.roles import RolePermission
 class UserScheme(BaseModel):
     id: int | None = None
     nickname: str = Field(max_length=15)
-    password: bytes | str | None = None
-    role: RolePermission | None = None
+    password: bytes | str
+    role: str
     is_super_user: bool = False
     is_active: bool = True
 
