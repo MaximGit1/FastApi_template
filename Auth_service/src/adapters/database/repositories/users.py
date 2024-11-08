@@ -5,11 +5,13 @@ from typing import Sequence, Any
 from src.adapters.database.models import users_table
 from src.domain.protocols import UserProtocol
 from src.domain.models import UserDomain, RolePermissionDomain
+from .salt import SaltService
 
 
 class UserRepository(UserProtocol):
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
+        self.__salt = SaltService()
 
     @staticmethod
     def _set_user_role(role_name: str) -> RolePermissionDomain:
@@ -25,7 +27,6 @@ class UserRepository(UserProtocol):
         return UserDomain(
             id=row.id,
             nickname=row.nickname,
-            # password=row.password,
             role=self._set_user_role(row.role),
             is_active=row.is_active,
             is_super_user=row.is_super_user,
@@ -48,7 +49,7 @@ class UserRepository(UserProtocol):
         user_values = {
             "nickname": user.nickname,
             "role": user.role,
-            "password": user.password,  # hashed_pass
+            "password": self.__salt.hash_password(user.password),
             "is_active": True,
             "is_super_user": False,
         }

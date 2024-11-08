@@ -30,7 +30,7 @@ users_table = Table(
     mapper_registry.metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("nickname", String(15), nullable=False),
-    Column("password", String(30), nullable=False),
+    Column("password", String(200), nullable=False),
     Column(
         "role",
         String(5),

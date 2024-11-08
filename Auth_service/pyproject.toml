@@ -16,6 +16,7 @@ python-dotenv = "^1.0.1"
 dishka = "^1.4.0"
 psycopg = {extras = ["build"], version = "^3.2.3"}
 uvicorn = "^0.32.0"
+bcrypt = "^4.2.0"
 
 
 [build-system]
