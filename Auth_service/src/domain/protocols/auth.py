@@ -15,7 +15,7 @@ class AuthProtocol(Protocol):
 
     @abstractmethod
     async def authenticate_user(
-        self, nickname: str, password: str
+        self, nickname: str, password: str, sub: int
     ) -> JWT_TOKEN: ...
 
     @abstractmethod

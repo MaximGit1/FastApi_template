@@ -13,7 +13,7 @@ class UserRepository(UserProtocol):
         self._session = session
         self.__salt = SaltService()
 
-    @staticmethod
+    @staticmethod  # repetition in repository "auth"
     def _set_user_role(role_name: str) -> RolePermissionDomain:
         if role_name == "USER":
             role = RolePermissionDomain.USER

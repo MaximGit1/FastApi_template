@@ -3,7 +3,6 @@ from enum import Enum
 
 from .permissions import GlobalPermission
 
-
 class RolePermission(Enum):
     GUEST: ClassVar[Set[GlobalPermission]] = {
         GlobalPermission.CAN_VIEW_RESOURCE,

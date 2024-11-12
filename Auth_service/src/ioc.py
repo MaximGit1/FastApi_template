@@ -20,10 +20,13 @@ from dishka import (
 )
 
 from src.adapters.database.repositories import UserRepository
+from src.adapters.database.repositories.auth import AuthRepository
 from src.domain.protocols import (
     UserProtocol,
     UowProtocol,
+    AuthProtocol,
 )
+from src.domain.services.auth import AuthService
 from src.domain.services.users import UserService
 
 
@@ -74,12 +77,16 @@ def repository_provider() -> Provider:
     provider.provide(
         UserRepository, scope=Scope.REQUEST, provides=UserProtocol
     )
+    provider.provide(
+        AuthRepository, scope=Scope.REQUEST, provides=AuthProtocol
+    )
     return provider
 
 
 def service_provider() -> Provider:
     provider = Provider()
     provider.provide(UserService, scope=Scope.REQUEST)
+    provider.provide(AuthService, scope=Scope.REQUEST)
     return provider
 
 
