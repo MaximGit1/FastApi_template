@@ -1,5 +1,12 @@
 from dataclasses import dataclass
 from typing import NewType
+from enum import StrEnum
+
+
+class TokenTypes(StrEnum):
+    Access = "access"
+    Refresh = "refresh"
+
 
 AccessToken = NewType("AccessToken", str)
 RefreshToken = NewType("RefreshToken", str)
@@ -7,6 +14,5 @@ RefreshToken = NewType("RefreshToken", str)
 
 @dataclass
 class TokenData:
-    access_token: AccessToken
-    refresh_token: RefreshToken | None
-    token_type: str = "Bearer"
+    token: AccessToken | RefreshToken
+    token_type: TokenTypes
