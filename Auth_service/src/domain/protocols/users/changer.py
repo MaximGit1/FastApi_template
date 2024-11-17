@@ -4,7 +4,7 @@ from abc import abstractmethod
 from src.domain.models import User, Roles
 
 
-class UserChanger(Protocol):
+class UserUpdaterProtocol(Protocol):
     @abstractmethod
     async def update_user_role(self, user_id: int, role: Roles) -> bool: ...
 

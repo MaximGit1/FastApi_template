@@ -4,7 +4,7 @@ from abc import abstractmethod
 from src.domain.models import User
 
 
-class UserReader(Protocol):
+class UserReaderProtocol(Protocol):
     @abstractmethod
     async def get_user_by_id(self, user_id: int) -> User | None: ...
 

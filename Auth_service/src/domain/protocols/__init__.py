@@ -1,11 +1,11 @@
-from .users import UserSaver, UserReader, UserChanger
+from .users import UserCreatorProtocol, UserReaderProtocol, UserUpdaterProtocol
 from .tokens import JWTGenerator, JWTStorager
 from .uow import UoWProtocol
 
 __all__ = (
-    "UserSaver",
-    "UserReader",
-    "UserChanger",
+    "UserCreatorProtocol",
+    "UserReaderProtocol",
+    "UserUpdaterProtocol",
     "JWTGenerator",
     "JWTStorager",
     "UoWProtocol",
