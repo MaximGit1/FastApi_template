@@ -1,5 +1,11 @@
 from src.domain.models import User, Roles
-from src.domain.protocols import UserReaderProtocol, UserCreatorProtocol, UserUpdaterProtocol, UoWProtocol
+from src.domain.protocols import (
+    UserReaderProtocol,
+    UserCreatorProtocol,
+    UserUpdaterProtocol,
+    UoWProtocol,
+)
+
 
 class UserService:
     def __init__(
@@ -17,7 +23,9 @@ class UserService:
     async def get_user_by_id(self, user_id: int) -> User | None:
         return await self._reader.get_user_by_id(user_id)
 
-    async def register_user(self, username: str, email: str, password: str) -> User:
+    async def register_user(
+        self, username: str, email: str, password: str
+    ) -> User:
         async with self._uow:
             user = await self._creator.create_user(username, email, password)
             await self._uow.commit()

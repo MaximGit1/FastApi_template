@@ -3,7 +3,8 @@ from src.domain.protocols import SaltProtocol
 
 class SaltService:
     def __init__(
-        self, salt_repository: SaltProtocol,
+        self,
+        salt_repository: SaltProtocol,
     ) -> None:
         self._salt_repository = salt_repository
 
@@ -12,6 +13,5 @@ class SaltService:
 
     def validate_password(self, password: str, hashed_password: bytes) -> bool:
         return self._salt_repository.validate_password(
-            password=password,
-            hashed_password=hashed_password
+            password=password, hashed_password=hashed_password
         )

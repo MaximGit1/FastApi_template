@@ -8,7 +8,7 @@ class User:
     username: str
     id: int | None = None
     email: str | None = None
-    password_hash: str | None = None
+    hashed_password: bytes | None = None
     role: Roles | None = None
     is_active: bool | None = True
     is_super_user: bool | None = False

@@ -6,7 +6,9 @@ from src.domain.models import AccessToken, RefreshToken, TokenData
 
 class JWTGenerator(Protocol):
     @abstractmethod
-    def create_token(self, user_id: int, token_type: AccessToken | RefreshToken) -> AccessToken | RefreshToken: ...
+    def create_token(
+        self, user_id: int, token_type: AccessToken | RefreshToken
+    ) -> AccessToken | RefreshToken: ...
 
     @abstractmethod
     def decode_token(self, token: TokenData) -> dict: ...
