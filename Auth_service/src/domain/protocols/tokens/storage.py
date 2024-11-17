@@ -6,7 +6,7 @@ from src.domain.models import TokenData
 
 class JWTStorager(Protocol):
     @abstractmethod
-    def save_token(self, user_id: int, token: TokenData) -> None:
+    async def save_token(self, user_id: int, token: TokenData) -> None:
         """Stores the token in the browser cache"""
         pass
 
@@ -16,6 +16,6 @@ class JWTStorager(Protocol):
         pass
 
     @abstractmethod
-    def delete_token(self, token: str) -> None:
+    async def delete_token(self, token: str) -> None:
         """Removes a token from the browser cache when the user logs out"""
         pass
