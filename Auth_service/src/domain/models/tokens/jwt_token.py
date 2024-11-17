@@ -14,5 +14,13 @@ RefreshToken = NewType("RefreshToken", str)
 
 @dataclass
 class TokenData:
-    token: AccessToken | RefreshToken
+    token: str
     token_type: TokenTypes
+
+    @classmethod
+    def from_access(cls, token: str) -> "TokenData":
+        return cls(token=token, token_type=TokenTypes.Access)
+
+    @classmethod
+    def from_refresh(cls, token: str) -> "TokenData":
+        return cls(token=token, token_type=TokenTypes.Refresh)
