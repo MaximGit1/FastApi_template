@@ -20,3 +20,6 @@ class Roles(Enum):
         Permissions.CAN_UPDATE_RESOURCE,
         Permissions.CAN_DELETE_RESOURCE,
     }
+
+    def has_permission(self, permission: Permissions) -> bool:
+        return permission in self.value
