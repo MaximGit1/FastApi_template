@@ -1,6 +1,12 @@
 from datetime import datetime, timedelta
 from typing import Any
-from jwt import encode, decode, exceptions as jwt_exceptions, ExpiredSignatureError, InvalidTokenError
+from jwt import (
+    encode,
+    decode,
+    exceptions as jwt_exceptions,
+    ExpiredSignatureError,
+    InvalidTokenError,
+)
 from pathlib import Path
 from os import getenv
 from dotenv import load_dotenv
@@ -10,6 +16,7 @@ from src.domain.models import TokenData, AccessToken, RefreshToken
 
 
 load_dotenv()
+
 
 class JWTRepository(JWTGenerator):
     def __init__(self):
@@ -74,4 +81,3 @@ class JWTRepository(JWTGenerator):
             return Path(base_dir / path).read_text()
         except FileNotFoundError:
             raise RuntimeError(f"Key file not found at path: {path}")
-
