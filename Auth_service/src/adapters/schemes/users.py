@@ -15,4 +15,5 @@ class UserInput(BaseModel):
             username=self.username,
             hashed_password=self.password,
             email=self.email,
+            role=Roles.USER,
         )
