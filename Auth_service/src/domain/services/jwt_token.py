@@ -1,7 +1,9 @@
 from src.domain.models import (
     User,
     TokenData,
-    TokenTypes, AccessToken, RefreshToken,
+    TokenTypes,
+    AccessToken,
+    RefreshToken,
 )
 from src.domain.protocols import (
     JWTGenerator,
@@ -34,7 +36,9 @@ class AuthService:
     async def register(self, username: str, email: str, password: str) -> User:
         hashed_password = self._salt.hash_password(password)
         async with self._uow as uow:
-            user = await uow.create_user(username=username, email=email, password=hashed_password)
+            user = await uow.create_user(
+                username=username, email=email, password=hashed_password
+            )
             await uow.commit()
         return user
 

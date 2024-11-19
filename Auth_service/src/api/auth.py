@@ -14,19 +14,33 @@ async def get_all(service: FromDishka[UserService]) -> list[User]:
     return results
 
 
-@router.get("/{user_id}/", summary="Get the user by id", response_model_exclude_none=True)
-async def get_user_by_id(user_id: int, service: FromDishka[UserService]) -> User:
-    user= await service.get_user_by_id(user_id=user_id)
+@router.get(
+    "/{user_id}/",
+    summary="Get the user by id",
+    response_model_exclude_none=True,
+)
+async def get_user_by_id(
+    user_id: int, service: FromDishka[UserService]
+) -> User:
+    user = await service.get_user_by_id(user_id=user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found.")
     return user
 
-@router.get("/username/{usermame}/", summary="Get the user by username", response_model_exclude_none=True)
-async def get_user_by_username(username: str, service: FromDishka[UserService]) -> User:
+
+@router.get(
+    "/username/{usermame}/",
+    summary="Get the user by username",
+    response_model_exclude_none=True,
+)
+async def get_user_by_username(
+    username: str, service: FromDishka[UserService]
+) -> User:
     user = await service.get_user_by_username(username=username)
     if not user:
         raise HTTPException(status_code=404, detail="User not found.")
     return user
+
 
 @router.post(
     "/register/",
@@ -35,7 +49,9 @@ async def get_user_by_username(username: str, service: FromDishka[UserService]) 
     response_model=User,
     response_model_exclude_none=True,
 )
-async def register(user_input: UserInput, service: FromDishka[AuthService]) -> User:
+async def register(
+    user_input: UserInput, service: FromDishka[AuthService]
+) -> User:
     """
     Registers a new user in the system.
     """
@@ -59,7 +75,7 @@ async def register(user_input: UserInput, service: FromDishka[AuthService]) -> U
 )
 async def login(
     credentials: LoginInput, service: FromDishka[AuthService]
-) -> TokenData:
+) -> dict:
     """
     Authenticates the user and returns tokens.
     """
@@ -71,6 +87,7 @@ async def login(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e)
         )
+
 
 @router.post(
     "/logout/",
@@ -88,6 +105,7 @@ async def logout(token: TokenData, service: FromDishka[AuthService]) -> None:
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
         )
 
+
 @router.post(
     "/refresh/",
     status_code=status.HTTP_200_OK,
@@ -96,7 +114,7 @@ async def logout(token: TokenData, service: FromDishka[AuthService]) -> None:
 )
 async def refresh(
     refresh_token: TokenData, service: FromDishka[AuthService]
-) -> TokenResponse:
+) -> dict:
     """
     Refreshes the access token.
     """
@@ -106,4 +124,3 @@ async def refresh(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
         )
-

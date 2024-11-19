@@ -18,6 +18,7 @@ class UserInput(BaseModel):
             role=Roles.USER,
         )
 
+
 class LoginInput(BaseModel):
     username: str
     password: str

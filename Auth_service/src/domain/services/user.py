@@ -39,6 +39,7 @@ class UserService:
             user = await self._reader.get_all_users()
             await self._uow.commit()
             return user
+
     # async def update_user_role(self, user_id: int, role: Roles) -> bool:
     #     async with self._uow:
     #         result = await self._updater.update_user_role(user_id, role)

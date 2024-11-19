@@ -46,7 +46,9 @@ class JWTRepository(JWTGenerator):
         }
 
         token = encode(payload, self.__private_key, algorithm=self.__algorithm)
-        return TokenData(token=token, token_type=TokenTypes(token_type_payload))
+        return TokenData(
+            token=token, token_type=TokenTypes(token_type_payload)
+        )
 
     def decode_token(self, token: TokenData) -> dict:
         try:
