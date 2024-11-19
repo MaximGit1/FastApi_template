@@ -3,9 +3,9 @@ from sqlalchemy import (
     MetaData,
     Column,
     TIMESTAMP,
-    ForeignKey,
     String,
     Integer,
+    Boolean,
     func,
 )
 from sqlalchemy.orm import registry
@@ -29,9 +29,12 @@ users_table = Table(
     "users",
     mapper_registry.metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
-    Column("name", String(15), nullable=False),
-    Column("age", Integer, nullable=False),
-    Column("description", String(200), nullable=True),
+    Column("username", String(15), nullable=False),
+    Column("email", String(55), nullable=False, unique=True),
+    Column("hashed_password", String, nullable=False),
+    Column("role", String(5), nullable=False),
+    Column("is_active", Boolean, nullable=False, default=True),
+    Column("is_super_user", Boolean, nullable=False, default=True),
     Column(
         "created_at",
         TIMESTAMP,
@@ -52,4 +55,4 @@ users_table = Table(
 
 
 def map_tables() -> None:
-    mapper_registry.map_imperatively(FrogDomain, frogs_table)
+    mapper_registry.map_imperatively(User, users_table)
