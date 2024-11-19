@@ -7,14 +7,16 @@ from src.adapters.database.models import users_table
 from src.domain.protocols import (
     UserReaderProtocol,
     UserCreatorProtocol,
-    UserUpdaterProtocol,
-)  # for future
+    UserUpdaterProtocol,  # for future
+)
 from src.domain.models import User, Roles
 from .salt import SaltRepository
 
 
 class UserRepository(UserCreatorProtocol, UserReaderProtocol):
-    def __init__(self, session: AsyncSession, salt: SaltRepository) -> None:
+    def __init__(
+        self, session: AsyncSession, salt: SaltRepository = SaltRepository
+    ) -> None:
         self._session = session
         self.__salt = salt
 
