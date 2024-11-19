@@ -12,8 +12,7 @@ from os import getenv
 from dotenv import load_dotenv
 
 from src.domain.protocols import JWTGenerator
-from src.domain.models import TokenData, AccessToken, RefreshToken
-
+from src.domain.models import TokenData, AccessToken, RefreshToken, TokenTypes
 
 load_dotenv()
 
@@ -30,12 +29,12 @@ class JWTRepository(JWTGenerator):
         self, user_id: int, token_type: AccessToken | RefreshToken
     ) -> TokenData:
         now = datetime.utcnow()
-        if type(token_type) is AccessToken:
+        if token_type is AccessToken:
             expire = now + timedelta(minutes=self.__token_expire_minutes)
-            token_type_payload = "access"
-        elif type(token_type) is RefreshToken:
+            token_type_payload = TokenTypes.Access.value
+        elif token_type is RefreshToken:
             expire = now + timedelta(days=self.__token_refresh_days)
-            token_type_payload = "refresh"
+            token_type_payload = TokenTypes.Refresh.value
         else:
             raise ValueError(f"Invalid token type: {token_type}")
 
@@ -47,9 +46,7 @@ class JWTRepository(JWTGenerator):
         }
 
         token = encode(payload, self.__private_key, algorithm=self.__algorithm)
-        if type(token_type) is AccessToken:
-            return TokenData.from_access(token=token)
-        return TokenData.from_refresh(token=token)
+        return TokenData(token=token, token_type=TokenTypes(token_type_payload))
 
     def decode_token(self, token: TokenData) -> dict:
         try:

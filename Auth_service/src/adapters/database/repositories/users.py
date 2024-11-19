@@ -73,7 +73,6 @@ class UserRepository(UserCreatorProtocol, UserReaderProtocol):
         return User(
             id=row.id,
             username=row.name,
-            email=row.email,
             role=row.role,
             is_active=row.is_active,
             is_super_user=row.is_super_user,

@@ -12,18 +12,21 @@ class UserService:
         self,
         user_reader: UserReaderProtocol,
         user_creator: UserCreatorProtocol,
-        user_updater: UserUpdaterProtocol,
+        # user_updater: UserUpdaterProtocol,
         uow: UoWProtocol,
     ):
         self._reader = user_reader
         self._creator = user_creator
-        self._updater = user_updater
+        # self._updater = user_updater
         self._uow = uow
 
     async def get_user_by_id(self, user_id: int) -> User | None:
         return await self._reader.get_user_by_id(user_id)
 
-    async def register_user(
+    async def get_user_by_username(self, username: str) -> User | None:
+        return await self._reader.get_user_by_username(username=username)
+
+    async def create_user(
         self, username: str, email: str, password: str
     ) -> User:
         async with self._uow:
@@ -31,18 +34,23 @@ class UserService:
             await self._uow.commit()
             return user
 
-    async def update_user_role(self, user_id: int, role: Roles) -> bool:
+    async def get_all_users(self):
         async with self._uow:
-            result = await self._updater.update_user_role(user_id, role)
+            user = await self._reader.get_all_users()
             await self._uow.commit()
-            return result
-
-    async def deactivate_user(self, user_id: int) -> None:
-        async with self._uow:
-            await self._updater.deactivate_user(user_id)
-            await self._uow.commit()
-
-    async def activate_user(self, user_id: int) -> None:
-        async with self._uow:
-            await self._updater.activate_user(user_id)
-            await self._uow.commit()
+            return user
+    # async def update_user_role(self, user_id: int, role: Roles) -> bool:
+    #     async with self._uow:
+    #         result = await self._updater.update_user_role(user_id, role)
+    #         await self._uow.commit()
+    #         return result
+    #
+    # async def deactivate_user(self, user_id: int) -> None:
+    #     async with self._uow:
+    #         await self._updater.deactivate_user(user_id)
+    #         await self._uow.commit()
+    #
+    # async def activate_user(self, user_id: int) -> None:
+    #     async with self._uow:
+    #         await self._updater.activate_user(user_id)
+    #         await self._uow.commit()

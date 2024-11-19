@@ -1,11 +1,10 @@
 from src.domain.models import (
     User,
     TokenData,
-    TokenTypes,
+    TokenTypes, AccessToken, RefreshToken,
 )
 from src.domain.protocols import (
     JWTGenerator,
-    JWTStorager,
     UserReaderProtocol,
     UoWProtocol,
 )
@@ -17,13 +16,11 @@ class AuthService:
     def __init__(
         self,
         jwt_generator: JWTGenerator,
-        token_storage: JWTStorager,
         user_reader: UserReaderProtocol,
         uow: UoWProtocol,
         salt: SaltService,
     ):
         self._jwt = jwt_generator
-        self._storage = token_storage
         self._reader = user_reader
         self._uow = uow
         self._salt = salt
@@ -34,7 +31,17 @@ class AuthService:
             hashed_password=user.hashed_password,
         )
 
-    async def login(self, username: str, password: str) -> TokenData:
+    async def register(self, username: str, email: str, password: str) -> User:
+        hashed_password = self._salt.hash_password(password)
+        async with self._uow as uow:
+            user = await uow.create_user(username=username, email=email, password=hashed_password)
+            await uow.commit()
+        return user
+
+    async def login(self, username: str, password: str) -> dict:
+        """
+        Authenticates the user and generates access and refresh tokens.
+        """
         user = await self._reader.get_user_by_username(username)
         if not user or not user.is_active:
             raise Exception("Invalid credentials or user is inactive.")
@@ -42,65 +49,50 @@ class AuthService:
         if not self._verify_password(user, password):
             raise Exception("Invalid credentials.")
 
+        # Generate tokens
         access_token = self._jwt.create_token(
-            user_id=user.id, token_type=TokenTypes.Access
+            user_id=user.id, token_type=AccessToken("")
         )
         refresh_token = self._jwt.create_token(
-            user_id=user.id, token_type=TokenTypes.Refresh
+            user_id=user.id, token_type=RefreshToken("")
         )
 
-        await self._storage.save_token(
-            user.id, TokenData(access_token, TokenTypes.Access)
-        )
-        await self._storage.save_token(
-            user.id, TokenData(refresh_token, TokenTypes.Refresh)
-        )
+        return {
+            "access_token": access_token.token,
+            "refresh_token": refresh_token.token,
+        }
 
-        return TokenData(token=access_token, token_type=TokenTypes.Access)
-
-    async def refresh(self, refresh_token: str) -> TokenData:
+    async def logout(self, token_data: TokenData) -> None:
         """
-        Refreshing an access token using a refresh token.
+        Validates and "revokes" a token (stateless logout).
+        If session-based storage is used, implement token revocation here.
         """
-        decoded_token = self._jwt.decode_token(
-            TokenData(refresh_token, TokenTypes.Refresh)
-        )
-        user_id = decoded_token.get("sub")
+        # If logout is stateless, just validate the token and return.
+        try:
+            payload = self._jwt.decode_token(token_data)
+        except ValueError as e:
+            raise Exception(f"Invalid token: {str(e)}")
 
-        if not user_id or not self._storage.verify_token(refresh_token):
-            raise Exception("Invalid or expired refresh token.")
+        # Optionally: check the user_id or other claims in the payload.
+        if "sub" not in payload:
+            raise Exception("Invalid token payload.")
 
-        user = await self._reader.get_user_by_id(user_id)
-        if not user or not user.is_active:
-            raise Exception("User not found or inactive.")
+    async def refresh(self, refresh_token: TokenData) -> dict:
+        """
+        Generates a new access token using a valid refresh token.
+        """
+        try:
+            payload = self._jwt.decode_token(refresh_token)
+            if payload["type"] != TokenTypes.Refresh.value:
+                raise Exception("Invalid token type.")
+        except ValueError as e:
+            raise Exception(f"Invalid refresh token: {str(e)}")
 
+        user_id = payload["sub"]
         new_access_token = self._jwt.create_token(
-            user_id=user.id, token_type=TokenTypes.Access
-        )
-        await self._storage.save_token(
-            user.id, TokenData(new_access_token, TokenTypes.Access)
+            user_id=user_id, token_type=AccessToken("")
         )
 
-        return TokenData(token=new_access_token, token_type=TokenTypes.Access)
-
-    async def revoke_refresh_token(self, refresh_token: str) -> None:
-        """
-        Revoke a specific refresh token.
-        """
-        if not self._storage.verify_token(refresh_token):
-            raise Exception("Invalid or expired refresh token.")
-
-        await self._storage.delete_token(refresh_token)
-
-    async def validate_token(self, token: str, token_type: TokenTypes) -> bool:
-        """
-        Token validation (access or refresh).
-        """
-        decoded_token = self._jwt.decode_token(TokenData(token, token_type))
-        user_id = decoded_token.get("sub")
-
-        if not user_id or not self._storage.verify_token(token):
-            return False
-
-        user = await self._reader.get_user_by_id(user_id)
-        return user is not None and user.is_active
+        return {
+            "access_token": new_access_token.token,
+        }
