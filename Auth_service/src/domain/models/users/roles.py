@@ -1,7 +1,7 @@
 from typing import ClassVar, Set
 from enum import Enum
 
-from permissions import Permissions
+from .permissions import Permissions
 
 
 class Roles(Enum):

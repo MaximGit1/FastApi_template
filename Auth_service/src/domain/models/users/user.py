@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from roles import Roles
+from .roles import Roles
 
 
 @dataclass
