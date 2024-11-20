@@ -8,7 +8,6 @@ from sqlalchemy import (
     Boolean,
     LargeBinary,
     func,
-
 )
 from sqlalchemy.orm import registry
 

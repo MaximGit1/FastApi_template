@@ -17,13 +17,18 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from src.adapters.database.repositories import UserRepository, JWTRepository, SaltRepository
+from src.adapters.database.repositories import (
+    UserRepository,
+    JWTRepository,
+    SaltRepository,
+)
 from src.domain.protocols import (
     JWTGenerator,
     # UserUpdaterProtocol,
     UserReaderProtocol,
     UserCreatorProtocol,
-    UoWProtocol, SaltProtocol,
+    UoWProtocol,
+    SaltProtocol,
 )
 from src.domain.services import UserService, AuthService, SaltService
 
@@ -72,13 +77,15 @@ class DBProvider(Provider):
 def repository_provider() -> Provider:
     provider = Provider()
     provider.provide(
-        UserRepository, scope=Scope.REQUEST, provides=AnyOf[UserReaderProtocol, UserCreatorProtocol]
+        UserRepository,
+        scope=Scope.REQUEST,
+        provides=AnyOf[UserReaderProtocol, UserCreatorProtocol],
     )
+    provider.provide(JWTRepository, scope=Scope.REQUEST, provides=JWTGenerator)
     provider.provide(
-        JWTRepository, scope=Scope.REQUEST, provides=JWTGenerator
-    )
-    provider.provide(
-        SaltRepository, scope=Scope.REQUEST, provides=SaltProtocol,
+        SaltRepository,
+        scope=Scope.REQUEST,
+        provides=SaltProtocol,
     )
     return provider
 

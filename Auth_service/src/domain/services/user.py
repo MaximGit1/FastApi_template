@@ -11,9 +11,13 @@ from os import getenv
 from dotenv import load_dotenv
 
 load_dotenv()
-logging.basicConfig(level=logging.DEBUG, filename=getenv("LOGS_PATH"),
-                    format="UserService: %(name)s :: %(levelname)s :: %(message)s\n\n\n",
-                    encoding="utf-8", filemode="w")
+logging.basicConfig(
+    level=logging.DEBUG,
+    filename=getenv("LOGS_PATH"),
+    format="UserService: %(name)s :: %(levelname)s :: %(message)s\n\n\n",
+    encoding="utf-8",
+    filemode="w",
+)
 
 
 class UserService:
@@ -38,21 +42,25 @@ class UserService:
     async def get_user_by_username(self, username: str) -> User | None:
         return await self._reader.get_user_by_username(username=username)
 
-    async def get_login_user_data_by_username(self, username: str) -> User | None:
-        return await self._reader.get_login_user_data_by_username(username=username)
+    async def get_login_user_data_by_username(
+        self, username: str
+    ) -> User | None:
+        return await self._reader.get_login_user_data_by_username(
+            username=username
+        )
 
     async def create_user(
         self, username: str, email: str, password: str
     ) -> User:
         try:
             async with self._uow:
-                user = await self._creator.create_user(username, email, password)
+                user = await self._creator.create_user(
+                    username, email, password
+                )
                 await self._uow.commit()
                 return user
         except Exception as e:
             logging.exception(f"create_user: {str(e)}")
-
-
 
     async def get_all_users(self):
         async with self._uow:

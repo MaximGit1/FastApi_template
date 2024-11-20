@@ -9,9 +9,13 @@ from src.domain.services import UserService, AuthService
 from src.adapters.schemes import UserInput, LoginInput
 
 load_dotenv()
-logging.basicConfig(level=logging.DEBUG, filename=getenv("LOGS_PATH"),
-                    format="API: %(name)s :: %(levelname)s :: %(message)s",
-                    encoding="utf-8", filemode="w")
+logging.basicConfig(
+    level=logging.DEBUG,
+    filename=getenv("LOGS_PATH"),
+    format="API: %(name)s :: %(levelname)s :: %(message)s",
+    encoding="utf-8",
+    filemode="w",
+)
 
 router = APIRouter(prefix="/auth", tags=["Auth"], route_class=DishkaRoute)
 
@@ -60,7 +64,6 @@ async def get_user_by_username(
     response_model=User,
     response_model_exclude_none=True,
 )
-
 async def register(
     user_input: UserInput, service: FromDishka[UserService]
 ) -> User:
@@ -86,9 +89,7 @@ async def register(
     summary="Authenticate and retrieve access/refresh tokens",
     response_model=TokenResponse,
 )
-async def login(
-    credentials: LoginInput, service: FromDishka[AuthService]
-):
+async def login(credentials: LoginInput, service: FromDishka[AuthService]):
     """
     Authenticates the user and returns tokens.
     """

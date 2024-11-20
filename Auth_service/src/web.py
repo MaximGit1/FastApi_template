@@ -9,7 +9,6 @@ from src.api import auth
 from src.ioc import init_async_container
 
 
-
 @asynccontextmanager
 async def _lifespan(app: FastAPI) -> AsyncIterator[None]:
     yield None

@@ -18,15 +18,17 @@ from os import getenv
 from dotenv import load_dotenv
 
 load_dotenv()
-logging.basicConfig(level=logging.DEBUG, filename=getenv("LOGS_PATH"),
-                    format="UserRepository: %(name)s :: %(levelname)s :: %(message)s",
-                    encoding="utf-8", filemode="w")
+logging.basicConfig(
+    level=logging.DEBUG,
+    filename=getenv("LOGS_PATH"),
+    format="UserRepository: %(name)s :: %(levelname)s :: %(message)s",
+    encoding="utf-8",
+    filemode="w",
+)
 
 
 class UserRepository(UserCreatorProtocol, UserReaderProtocol):
-    def __init__(
-        self, session: AsyncSession, salt: SaltProtocol
-    ) -> None:
+    def __init__(self, session: AsyncSession, salt: SaltProtocol) -> None:
         self._session = session
         self.__salt = salt
 
@@ -113,7 +115,9 @@ class UserRepository(UserCreatorProtocol, UserReaderProtocol):
             is_super_user=row.is_super_user,
         )
 
-    async def get_login_user_data_by_username(self, username: str) -> User | None:
+    async def get_login_user_data_by_username(
+        self, username: str
+    ) -> User | None:
         stmt = select(users_table).where(users_table.c.username == username)
         result = (await self._session.execute(stmt)).one_or_none()
         return self.__get_login_user_data(result) if result else None

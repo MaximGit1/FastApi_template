@@ -11,7 +11,7 @@ from src.domain.protocols import (
     JWTGenerator,
     UserReaderProtocol,
     UoWProtocol,
-    UserCreatorProtocol
+    UserCreatorProtocol,
 )
 
 from .salt import SaltService
@@ -22,9 +22,14 @@ from os import getenv
 from dotenv import load_dotenv
 
 load_dotenv()
-logging.basicConfig(level=logging.DEBUG, filename=getenv("LOGS_PATH"),
-                    format="AuthServicePythoooon: %(name)s :: %(levelname)s :: %(message)s",
-                    encoding="utf-8", filemode="w")
+logging.basicConfig(
+    level=logging.DEBUG,
+    filename=getenv("LOGS_PATH"),
+    format="AuthServicePythoooon: %(name)s :: %(levelname)s :: %(message)s",
+    encoding="utf-8",
+    filemode="w",
+)
+
 
 class AuthService:
     def __init__(
@@ -50,7 +55,9 @@ class AuthService:
     async def register(self, username: str, email: str, password: str) -> User:
         # hashed_password = self._salt.hash_password(password)
         try:
-            user = await self._saver.create_user(username=username, password=password, email=email)
+            user = await self._saver.create_user(
+                username=username, password=password, email=email
+            )
             return user
         except Exception as e:
             logging.exception(f"register: {str(e)}")
@@ -60,7 +67,9 @@ class AuthService:
         Authenticates the user and generates access and refresh tokens.
         """
         try:
-            user: User = await self._reader.get_login_user_data_by_username(username)
+            user: User = await self._reader.get_login_user_data_by_username(
+                username
+            )
             if not user or not user.is_active:
                 raise Exception("Invalid credentials or user is inactive.")
         except Exception as e:
@@ -72,7 +81,7 @@ class AuthService:
         except Exception as e:
             logging.exception(f"login, password do not validate: {str(e)}")
 
-        try: # тут ошибка
+        try:  # тут ошибка
             access_token = self._jwt.create_token(
                 user_id=user.id, token_type=AccessToken
             )
@@ -86,8 +95,6 @@ class AuthService:
             )
         except Exception as e:
             logging.exception(f"login, token do not generated: {str(e)}")
-
-
 
     async def logout(self, token_data: TokenData) -> None:
         """
@@ -123,4 +130,3 @@ class AuthService:
         return {
             "access_token": new_access_token.token,
         }
-
