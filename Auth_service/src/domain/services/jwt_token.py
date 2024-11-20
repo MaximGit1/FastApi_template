@@ -1,3 +1,5 @@
+from typing import Type
+
 from src.domain.models import (
     User,
     TokenData,
@@ -13,7 +15,16 @@ from src.domain.protocols import (
 )
 
 from .salt import SaltService
+from src.domain.models import TokenResponse
 
+import logging
+from os import getenv
+from dotenv import load_dotenv
+
+load_dotenv()
+logging.basicConfig(level=logging.DEBUG, filename=getenv("LOGS_PATH"),
+                    format="AuthServicePythoooon: %(name)s :: %(levelname)s :: %(message)s",
+                    encoding="utf-8", filemode="w")
 
 class AuthService:
     def __init__(
@@ -38,32 +49,45 @@ class AuthService:
 
     async def register(self, username: str, email: str, password: str) -> User:
         # hashed_password = self._salt.hash_password(password)
-        user = await self._saver.create_user(username=username, password=password, email=email)
-        return user
+        try:
+            user = await self._saver.create_user(username=username, password=password, email=email)
+            return user
+        except Exception as e:
+            logging.exception(f"register: {str(e)}")
 
-    async def login(self, username: str, password: str) -> dict:
+    async def login(self, username: str, password: str) -> TokenResponse:
         """
         Authenticates the user and generates access and refresh tokens.
         """
-        user = await self._reader.get_user_by_username(username)
-        if not user or not user.is_active:
-            raise Exception("Invalid credentials or user is inactive.")
+        try:
+            user: User = await self._reader.get_login_user_data_by_username(username)
+            if not user or not user.is_active:
+                raise Exception("Invalid credentials or user is inactive.")
+        except Exception as e:
+            logging.exception(f"login, user not exist: {str(e)}")
 
-        if not self._verify_password(user, password):
-            raise Exception("Invalid credentials.")
+        try:
+            if not self._verify_password(user, password):
+                raise Exception("Invalid credentials.")
+        except Exception as e:
+            logging.exception(f"login, password do not validate: {str(e)}")
 
-        # Generate tokens
-        access_token = self._jwt.create_token(
-            user_id=user.id, token_type=AccessToken("")
-        )
-        refresh_token = self._jwt.create_token(
-            user_id=user.id, token_type=RefreshToken("")
-        )
+        try: # тут ошибка
+            access_token = self._jwt.create_token(
+                user_id=user.id, token_type=AccessToken
+            )
+            refresh_token = self._jwt.create_token(
+                user_id=user.id, token_type=RefreshToken
+            )
 
-        return {
-            "access_token": access_token.token,
-            "refresh_token": refresh_token.token,
-        }
+            return TokenResponse(
+                access_token=access_token.token,
+                refresh_token=refresh_token.token,
+            )
+        except Exception as e:
+            logging.exception(f"login, token do not generated: {str(e)}")
+
+
 
     async def logout(self, token_data: TokenData) -> None:
         """
@@ -99,3 +123,4 @@ class AuthService:
         return {
             "access_token": new_access_token.token,
         }
+

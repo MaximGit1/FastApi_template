@@ -13,3 +13,7 @@ class UserReaderProtocol(Protocol):
 
     @abstractmethod
     async def get_all_users(self) -> list[User]: ...
+
+    @abstractmethod
+    async def get_login_user_data_by_username(self, username: str) -> User | None: ...
+

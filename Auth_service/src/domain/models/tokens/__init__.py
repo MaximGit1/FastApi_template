@@ -1,4 +1,4 @@
-from .jwt_token import AccessToken, RefreshToken, TokenData, TokenTypes
+from .jwt_token import AccessToken, RefreshToken, TokenData, TokenTypes, TokenResponse
 
 
-__all__ = ("AccessToken", "RefreshToken", "TokenData", "TokenTypes")
+__all__ = ("AccessToken", "RefreshToken", "TokenData", "TokenTypes", "TokenResponse")

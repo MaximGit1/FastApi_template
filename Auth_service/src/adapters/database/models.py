@@ -6,7 +6,9 @@ from sqlalchemy import (
     String,
     Integer,
     Boolean,
+    LargeBinary,
     func,
+
 )
 from sqlalchemy.orm import registry
 
@@ -29,16 +31,16 @@ users_table = Table(
     "users",
     mapper_registry.metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
-    Column("username", String(15), nullable=False, unique=True),
+    Column("username", String(25), nullable=False, unique=True),
     Column("email", String(55), nullable=False),
-    Column("hashed_password", String, nullable=False),
+    Column("hashed_password", LargeBinary, nullable=False),
     Column("role", String(5), nullable=False),
     Column("is_active", Boolean, nullable=False, default=True),
     Column("is_super_user", Boolean, nullable=False, default=True),
     Column(
         "created_at",
         TIMESTAMP,
-        default=func.now(),
+        # default=func.now(),
         server_default=func.now(),
         nullable=False,
     ),
@@ -48,7 +50,7 @@ users_table = Table(
         default=func.now(),
         server_default=func.now(),
         onupdate=func.now(),
-        server_onupdate=func.now(),
+        # server_onupdate=func.now(),
         nullable=True,
     ),
 )
