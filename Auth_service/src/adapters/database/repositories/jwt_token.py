@@ -51,6 +51,8 @@ class JWTRepository(JWTGenerator):
         )
 
     def decode_token(self, token: TokenData) -> dict:
+        if not token.token:
+            raise InvalidTokenError("Invalid token")
         try:
             payload = decode(
                 token.token,
@@ -64,7 +66,7 @@ class JWTRepository(JWTGenerator):
         except ExpiredSignatureError:
             raise ValueError("Token has expired.")
         except InvalidTokenError as e:
-            raise ValueError(f"Invalid token: {e}")
+            raise ValueError("Invalid token")
 
     async def validate_token(self, user_id: int, token: TokenData) -> bool:
         try:

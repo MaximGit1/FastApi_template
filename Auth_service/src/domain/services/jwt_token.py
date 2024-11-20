@@ -1,5 +1,3 @@
-from typing import Type
-
 from src.domain.models import (
     User,
     TokenData,
@@ -111,22 +109,26 @@ class AuthService:
         if "sub" not in payload:
             raise Exception("Invalid token payload.")
 
-    async def refresh(self, refresh_token: TokenData) -> dict:
+    async def refresh(self, refresh_token: TokenData) -> TokenData:
         """
         Generates a new access token using a valid refresh token.
         """
         try:
             payload = self._jwt.decode_token(refresh_token)
-            if payload["type"] != TokenTypes.Refresh.value:
-                raise Exception("Invalid token type.")
+            if payload["type"] != TokenTypes.Refresh:
+                logging.exception(
+                    'refresh: payload["type"] != TokenTypes.Refresh'
+                )
+                raise Exception("Invalid token type")
         except ValueError as e:
-            raise Exception(f"Invalid refresh token: {str(e)}")
+            logging.exception(f"refresh: {str(e)}")
+            raise Exception(f"Invalid refresh token")
+        try:
+            user_id = payload["sub"]
+            new_access_token = self._jwt.create_token(
+                user_id=user_id, token_type=RefreshToken
+            )
 
-        user_id = payload["sub"]
-        new_access_token = self._jwt.create_token(
-            user_id=user_id, token_type=AccessToken("")
-        )
-
-        return {
-            "access_token": new_access_token.token,
-        }
+            return new_access_token
+        except Exception as e:
+            logging.exception(f"refresh: all func - {str(e)}")

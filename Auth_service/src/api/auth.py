@@ -116,7 +116,8 @@ async def logout(token: TokenData, service: FromDishka[AuthService]) -> None:
         await service.logout(token_data=token)
     except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid token or token type",
         )
 
 
@@ -124,17 +125,16 @@ async def logout(token: TokenData, service: FromDishka[AuthService]) -> None:
     "/refresh/",
     status_code=status.HTTP_200_OK,
     summary="Refresh access token using refresh token",
-    response_model=TokenResponse,
+    response_model=TokenData,
 )
-async def refresh(
-    refresh_token: TokenData, service: FromDishka[AuthService]
-) -> dict:
+async def refresh(refresh_token: TokenData, service: FromDishka[AuthService]):
     """
     Refreshes the access token.
     """
     try:
         return await service.refresh(refresh_token=refresh_token)
     except Exception as e:
+        logging.exception(f"refresh: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
         )
