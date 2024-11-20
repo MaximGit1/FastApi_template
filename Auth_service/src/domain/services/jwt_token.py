@@ -9,9 +9,10 @@ from src.domain.protocols import (
     JWTGenerator,
     UserReaderProtocol,
     UoWProtocol,
+    UserCreatorProtocol
 )
 
-from salt import SaltService
+from .salt import SaltService
 
 
 class AuthService:
@@ -19,11 +20,13 @@ class AuthService:
         self,
         jwt_generator: JWTGenerator,
         user_reader: UserReaderProtocol,
+        user_saver: UserCreatorProtocol,
         uow: UoWProtocol,
         salt: SaltService,
     ):
         self._jwt = jwt_generator
         self._reader = user_reader
+        self._saver = user_saver
         self._uow = uow
         self._salt = salt
 
@@ -34,12 +37,8 @@ class AuthService:
         )
 
     async def register(self, username: str, email: str, password: str) -> User:
-        hashed_password = self._salt.hash_password(password)
-        async with self._uow as uow:
-            user = await uow.create_user(
-                username=username, email=email, password=hashed_password
-            )
-            await uow.commit()
+        # hashed_password = self._salt.hash_password(password)
+        user = await self._saver.create_user(username=username, password=password, email=email)
         return user
 
     async def login(self, username: str, password: str) -> dict:
