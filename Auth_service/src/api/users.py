@@ -1,12 +1,12 @@
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, HTTPException, status
-import logging
-from os import getenv
 from dotenv import load_dotenv
+from os import getenv
+import logging
 
-from src.domain.models import TokenData, User, TokenResponse
-from src.domain.services import UserService, AuthService
-from src.adapters.schemes import UserInput, LoginInput
+from src.domain.services import UserService
+from src.adapters.schemes import UserInput
+from src.domain.models import User
 
 
 load_dotenv()

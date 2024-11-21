@@ -4,11 +4,11 @@ from .salt import SaltProtocol
 from .uow import UoWProtocol
 
 __all__ = (
+    "UserUpdaterProtocol",
     "UserCreatorProtocol",
     "UserReaderProtocol",
-    "UserUpdaterProtocol",
     "JWTGenerator",
-    "JWTStorager",
     "SaltProtocol",
     "UoWProtocol",
+    "JWTStorager",
 )

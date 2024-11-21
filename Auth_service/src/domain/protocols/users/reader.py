@@ -1,7 +1,7 @@
-from typing import Protocol
 from abc import abstractmethod
+from typing import Protocol
 
-from src.domain.models import User, TokenData
+from src.domain.models import User
 
 
 class UserReaderProtocol(Protocol):

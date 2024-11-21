@@ -1,4 +1,3 @@
-# from src.domain.models import Permissions
 from src.domain.protocols import UserReaderProtocol
 from src.domain.models import Permissions
 

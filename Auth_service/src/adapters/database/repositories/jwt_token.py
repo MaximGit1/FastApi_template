@@ -1,23 +1,25 @@
 from datetime import datetime, timedelta
-from typing import Any
-from jwt import (
-    encode,
-    decode,
-    exceptions as jwt_exceptions,
-    ExpiredSignatureError,
-    InvalidTokenError,
-)
+from dotenv import load_dotenv
 from pathlib import Path
 from os import getenv
-from dotenv import load_dotenv
-# from sqlalchemy.testing.plugin.plugin_base import logging
-
-from src.domain.protocols import JWTGenerator
-from src.domain.models import TokenData, AccessToken, RefreshToken, TokenTypes, User, Roles
-
+from jwt import (
+    ExpiredSignatureError,
+    InvalidTokenError,
+    encode,
+    decode,
+)
 import logging
-from os import getenv
-from dotenv import load_dotenv
+
+from src.domain.models import (
+    TokenData,
+    AccessToken,
+    RefreshToken,
+    TokenTypes,
+    User,
+    Roles,
+)
+from src.domain.protocols import JWTGenerator
+
 
 load_dotenv()
 logging.basicConfig(
@@ -65,12 +67,14 @@ class JWTRepository(JWTGenerator):
                 "exp": expire,
                 "permissions": list(role.value),
                 "is_active": user.is_active,
-                "is_super_user": user.is_super_user
+                "is_super_user": user.is_super_user,
             }
         except Exception as e:
             logging.exception(f"create_token: payload was broken {str(e)}")
         try:
-            token = encode(payload, self.__private_key, algorithm=self.__algorithm)
+            token = encode(
+                payload, self.__private_key, algorithm=self.__algorithm
+            )
             return TokenData(
                 token=token, token_type=TokenTypes(token_type_payload)
             )

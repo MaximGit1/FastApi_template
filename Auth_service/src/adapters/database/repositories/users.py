@@ -1,21 +1,18 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import Row, select, update as sa_update
+from sqlalchemy import Row, select
 from typing import Sequence, Any
+from dotenv import load_dotenv
+from os import getenv
+import logging
 
 from src.adapters.database.models import users_table
+from src.domain.models import User, Roles
 from src.domain.protocols import (
     UserReaderProtocol,
     UserCreatorProtocol,
     SaltProtocol,
-    UserUpdaterProtocol,  # for future
 )
-from src.domain.models import User, TokenData, Roles
-# from .salt import SaltRepository
 
-import logging
-from os import getenv
-from dotenv import load_dotenv
 
 load_dotenv()
 logging.basicConfig(
@@ -121,23 +118,3 @@ class UserRepository(UserCreatorProtocol, UserReaderProtocol):
         stmt = select(users_table).where(users_table.c.username == username)
         result = (await self._session.execute(stmt)).one_or_none()
         return self.__get_login_user_data(result) if result else None
-
-    # async def get_user_data_by_access_token(self, access_token: TokenData) -> User:
-    #     ...
-
-    # @staticmethod
-    # def __get_user_permissions(row: Row[Any]) -> User:
-    #     if row.role == "user":
-    #         role = Roles.USER
-    #     elif row.role == "admin":
-    #         role = Roles.ADMIN
-    #     else:
-    #         role = Roles.GUEST
-    #
-    #     return User(
-    #         id=row.id,
-    #         username=row.username,
-    #         role=role,
-    #         is_active=row.is_active,
-    #         is_super_user=row.is_super_user,
-    #     )

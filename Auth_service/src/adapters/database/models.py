@@ -1,12 +1,12 @@
 from sqlalchemy import (
-    Table,
-    MetaData,
-    Column,
+    LargeBinary,
     TIMESTAMP,
-    String,
+    MetaData,
     Integer,
     Boolean,
-    LargeBinary,
+    Column,
+    String,
+    Table,
     func,
 )
 from sqlalchemy.orm import registry
@@ -39,7 +39,6 @@ users_table = Table(
     Column(
         "created_at",
         TIMESTAMP,
-        # default=func.now(),
         server_default=func.now(),
         nullable=False,
     ),
@@ -49,7 +48,6 @@ users_table = Table(
         default=func.now(),
         server_default=func.now(),
         onupdate=func.now(),
-        # server_onupdate=func.now(),
         nullable=True,
     ),
 )

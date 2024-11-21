@@ -1,7 +1,6 @@
-from typing import Protocol
 from abc import abstractmethod
+from typing import Protocol
 
-# from src.domain.models import User, Roles
 from src.domain.models import Roles
 
 

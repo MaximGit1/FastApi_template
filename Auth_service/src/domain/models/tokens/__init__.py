@@ -1,16 +1,16 @@
 from .jwt_token import (
-    AccessToken,
-    RefreshToken,
     TokenData,
     TokenTypes,
+    AccessToken,
+    RefreshToken,
     TokenResponse,
 )
 
 
 __all__ = (
-    "AccessToken",
-    "RefreshToken",
     "TokenData",
     "TokenTypes",
+    "AccessToken",
+    "RefreshToken",
     "TokenResponse",
 )

@@ -31,24 +31,6 @@ async def login(credentials: LoginInput, service: FromDishka[AuthService]):
         )
 
 
-# @router.post(
-#     "/logout/",
-#     status_code=status.HTTP_204_NO_CONTENT,
-#     summary="Logout user",
-# )
-# async def logout(token: TokenData, service: FromDishka[AuthService]) -> None:
-#     """
-#     Logout the user (stateless).
-#     """
-#     try:
-#         await service.logout(token_data=token)
-#     except Exception as e:
-#         raise HTTPException(
-#             status_code=status.HTTP_400_BAD_REQUEST,
-#             detail="Invalid token or token type",
-#         )
-
-
 @router.post(
     "/refresh/",
     status_code=status.HTTP_200_OK,
@@ -66,7 +48,3 @@ async def refresh(refresh_token: TokenData, service: FromDishka[AuthService]):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
         )
-
-# @router.post("/token-data/")
-# async def get_token_payload(token: TokenData, service: FromDishka[AuthService]) -> dict:
-#     return service.get_token_payload(token=token)

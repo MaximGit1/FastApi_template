@@ -1,3 +1,7 @@
+import logging
+from os import getenv
+from dotenv import load_dotenv
+
 from src.domain.models import (
     User,
     TokenData,
@@ -12,12 +16,9 @@ from src.domain.protocols import (
     UserCreatorProtocol,
 )
 
-from .salt import SaltService
 from src.domain.models import TokenResponse
+from .salt import SaltService
 
-import logging
-from os import getenv
-from dotenv import load_dotenv
 
 load_dotenv()
 logging.basicConfig(
@@ -129,7 +130,7 @@ class AuthService:
                 username=None,
                 role=payload["permissions"],
                 is_active=payload["is_active"],
-                is_super_user=payload["is_super_user"]
+                is_super_user=payload["is_super_user"],
             )
             new_access_token = self._jwt.create_token(
                 user=user, token_type=RefreshToken
@@ -138,7 +139,6 @@ class AuthService:
             return new_access_token
         except Exception as e:
             logging.exception(f"refresh: all func - {str(e)}")
-
 
     def get_token_payload(self, token: TokenData) -> dict:
         return self._jwt.get_token_payload(token=token)

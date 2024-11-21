@@ -1,6 +1,6 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
-from src.domain.models import User, Permissions, Roles
+from src.domain.models import User, Roles
 
 
 class UserInput(BaseModel):

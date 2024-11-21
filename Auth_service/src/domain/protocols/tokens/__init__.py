@@ -1,8 +1,8 @@
-from .generator import JWTGenerator
 from .storage import JWTStorager
+from .generator import JWTGenerator
 
 
 __all__ = (
-    "JWTGenerator",
     "JWTStorager",
+    "JWTGenerator",
 )

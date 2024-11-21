@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from .roles import Roles
 
+
 @dataclass
 class User:
     username: str | None

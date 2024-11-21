@@ -1,20 +1,20 @@
-from src.domain.models import User, TokenData
-from src.domain.protocols import (
-    UserReaderProtocol,
-    UserCreatorProtocol,
-    UserUpdaterProtocol,
-    UoWProtocol,
-)
-
 import logging
 from os import getenv
 from dotenv import load_dotenv
+
+from src.domain.models import User
+from src.domain.protocols import (
+    UserReaderProtocol,
+    UserCreatorProtocol,
+    UoWProtocol,
+)
+
 
 load_dotenv()
 logging.basicConfig(
     level=logging.DEBUG,
     filename=getenv("LOGS_PATH"),
-    format="UserService: %(name)s :: %(levelname)s :: %(message)s\n\n\n",
+    format="UserService: %(name)s :: %(levelname)s :: %(message)s",
     encoding="utf-8",
     filemode="w",
 )
@@ -25,12 +25,10 @@ class UserService:
         self,
         user_reader: UserReaderProtocol,
         user_creator: UserCreatorProtocol,
-        # user_updater: UserUpdaterProtocol,
         uow: UoWProtocol,
     ):
         self._reader = user_reader
         self._creator = user_creator
-        # self._updater = user_updater
         self._uow = uow
 
     async def get_user_by_id(self, user_id: int) -> User | None:
@@ -42,16 +40,12 @@ class UserService:
     async def get_user_by_username(self, username: str) -> User | None:
         return await self._reader.get_user_by_username(username=username)
 
-    # async def get_user_data_by_access_token(self, access_token: TokenData) -> User | None:
-    #     return await self._reader.get_user_data_by_access_token(access_token=access_token)
-
     async def get_login_user_data_by_username(
         self, username: str
     ) -> User | None:
         return await self._reader.get_login_user_data_by_username(
             username=username
         )
-
 
     async def create_user(
         self, username: str, email: str, password: str
@@ -71,19 +65,3 @@ class UserService:
             user = await self._reader.get_all_users()
             await self._uow.commit()
             return user
-
-    # async def update_user_role(self, user_id: int, role: Roles) -> bool:
-    #     async with self._uow:
-    #         result = await self._updater.update_user_role(user_id, role)
-    #         await self._uow.commit()
-    #         return result
-    #
-    # async def deactivate_user(self, user_id: int) -> None:
-    #     async with self._uow:
-    #         await self._updater.deactivate_user(user_id)
-    #         await self._uow.commit()
-    #
-    # async def activate_user(self, user_id: int) -> None:
-    #     async with self._uow:
-    #         await self._updater.activate_user(user_id)
-    #         await self._uow.commit()
