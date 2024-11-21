@@ -79,12 +79,12 @@ class AuthService:
         except Exception as e:
             logging.exception(f"login, password do not validate: {str(e)}")
 
-        try:  # тут ошибка
+        try:
             access_token = self._jwt.create_token(
-                user_id=user.id, token_type=AccessToken
+                user=user, token_type=AccessToken
             )
             refresh_token = self._jwt.create_token(
-                user_id=user.id, token_type=RefreshToken
+                user=user, token_type=RefreshToken
             )
 
             return TokenResponse(
@@ -124,11 +124,21 @@ class AuthService:
             logging.exception(f"refresh: {str(e)}")
             raise Exception(f"Invalid refresh token")
         try:
-            user_id = payload["sub"]
+            user = User(
+                id=payload["sub"],
+                username=None,
+                role=payload["permissions"],
+                is_active=payload["is_active"],
+                is_super_user=payload["is_super_user"]
+            )
             new_access_token = self._jwt.create_token(
-                user_id=user_id, token_type=RefreshToken
+                user=user, token_type=RefreshToken
             )
 
             return new_access_token
         except Exception as e:
             logging.exception(f"refresh: all func - {str(e)}")
+
+
+    def get_token_payload(self, token: TokenData) -> dict:
+        return self._jwt.get_token_payload(token=token)

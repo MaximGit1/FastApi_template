@@ -10,11 +10,23 @@ from jwt import (
 from pathlib import Path
 from os import getenv
 from dotenv import load_dotenv
+# from sqlalchemy.testing.plugin.plugin_base import logging
 
 from src.domain.protocols import JWTGenerator
-from src.domain.models import TokenData, AccessToken, RefreshToken, TokenTypes
+from src.domain.models import TokenData, AccessToken, RefreshToken, TokenTypes, User, Roles
+
+import logging
+from os import getenv
+from dotenv import load_dotenv
 
 load_dotenv()
+logging.basicConfig(
+    level=logging.DEBUG,
+    filename=getenv("LOGS_PATH"),
+    format="JWTRepository: %(name)s :: %(levelname)s :: %(message)s",
+    encoding="utf-8",
+    filemode="w",
+)
 
 
 class JWTRepository(JWTGenerator):
@@ -26,7 +38,7 @@ class JWTRepository(JWTGenerator):
         self.__token_refresh_days = int(getenv("TOKEN_REFRESH_DAYS", 7))
 
     def create_token(
-        self, user_id: int, token_type: AccessToken | RefreshToken
+        self, user: User, token_type: AccessToken | RefreshToken
     ) -> TokenData:
         now = datetime.utcnow()
         if token_type is AccessToken:
@@ -37,18 +49,33 @@ class JWTRepository(JWTGenerator):
             token_type_payload = TokenTypes.Refresh.value
         else:
             raise ValueError(f"Invalid token type: {token_type}")
-
-        payload = {
-            "sub": user_id,
-            "type": token_type_payload,
-            "iat": now,
-            "exp": expire,
-        }
-
-        token = encode(payload, self.__private_key, algorithm=self.__algorithm)
-        return TokenData(
-            token=token, token_type=TokenTypes(token_type_payload)
-        )
+        logging.warning(user)
+        if user.role == "user":
+            role = Roles.USER
+        elif user.role == "admin":
+            role = Roles.ADMIN
+        else:
+            role = Roles.GUEST
+        logging.warning(role)
+        try:
+            payload = {
+                "sub": user.id,
+                "type": token_type_payload,
+                "iat": now,
+                "exp": expire,
+                "permissions": list(role.value),
+                "is_active": user.is_active,
+                "is_super_user": user.is_super_user
+            }
+        except Exception as e:
+            logging.exception(f"create_token: payload was broken {str(e)}")
+        try:
+            token = encode(payload, self.__private_key, algorithm=self.__algorithm)
+            return TokenData(
+                token=token, token_type=TokenTypes(token_type_payload)
+            )
+        except Exception as e:
+            logging.exception(f"stupid encode: {str(e)}")
 
     def decode_token(self, token: TokenData) -> dict:
         if not token.token:
@@ -82,3 +109,7 @@ class JWTRepository(JWTGenerator):
             return Path(base_dir / path).read_text()
         except FileNotFoundError:
             raise RuntimeError(f"Key file not found at path: {path}")
+
+    def get_token_payload(self, token: TokenData) -> dict:
+        payload = self.decode_token(token)
+        return payload

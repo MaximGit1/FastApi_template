@@ -2,10 +2,9 @@ from dataclasses import dataclass
 
 from .roles import Roles
 
-
 @dataclass
 class User:
-    username: str
+    username: str | None
     id: int | None = None
     email: str | None = None
     hashed_password: bytes | None = None

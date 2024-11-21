@@ -1,7 +1,7 @@
 from typing import Protocol
 from abc import abstractmethod
 
-from src.domain.models import User
+from src.domain.models import User, TokenData
 
 
 class UserReaderProtocol(Protocol):
@@ -18,3 +18,6 @@ class UserReaderProtocol(Protocol):
     async def get_login_user_data_by_username(
         self, username: str
     ) -> User | None: ...
+
+    # @abstractmethod
+    # async def get_user_data_by_access_token(self, access_token: TokenData) -> User: ...

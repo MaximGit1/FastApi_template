@@ -1,4 +1,4 @@
-from src.domain.models import User, Roles
+from src.domain.models import User, TokenData
 from src.domain.protocols import (
     UserReaderProtocol,
     UserCreatorProtocol,
@@ -42,12 +42,16 @@ class UserService:
     async def get_user_by_username(self, username: str) -> User | None:
         return await self._reader.get_user_by_username(username=username)
 
+    # async def get_user_data_by_access_token(self, access_token: TokenData) -> User | None:
+    #     return await self._reader.get_user_data_by_access_token(access_token=access_token)
+
     async def get_login_user_data_by_username(
         self, username: str
     ) -> User | None:
         return await self._reader.get_login_user_data_by_username(
             username=username
         )
+
 
     async def create_user(
         self, username: str, email: str, password: str

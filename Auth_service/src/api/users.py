@@ -8,6 +8,7 @@ from src.domain.models import TokenData, User, TokenResponse
 from src.domain.services import UserService, AuthService
 from src.adapters.schemes import UserInput, LoginInput
 
+
 load_dotenv()
 logging.basicConfig(
     level=logging.DEBUG,
