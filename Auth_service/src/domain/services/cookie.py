@@ -1,3 +1,5 @@
+from urllib.request import Request
+
 from starlette.responses import Response
 from dotenv import load_dotenv
 from os import getenv
@@ -14,10 +16,10 @@ class CookiesService:
         self._cookies_repository = cookies_repository
         self._auth_access_token = getenv("AUTH_ACCESS_TOKEN")
 
-    def get_access_token(self, response: Response) -> AccessToken | None:
+    def get_access_token(self, request: Request) -> AccessToken | None:
         access_token_value: Token | str = (
             self._cookies_repository.get_cookie_value(
-                response=response,
+                request=request,
                 key=self._auth_access_token,
             )
         )

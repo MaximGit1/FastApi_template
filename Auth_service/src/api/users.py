@@ -1,12 +1,11 @@
-from dishka.integrations.fastapi import DishkaRoute, FromDishka
-from fastapi import APIRouter, HTTPException, status, Depends
+from dishka.integrations.fastapi import DishkaRoute, FromDishka, inject
+from fastapi import APIRouter, HTTPException, status, Depends, Request
 from dotenv import load_dotenv
 from os import getenv
 import logging
 
-from src.domain.services import UserService
-from src.adapters.schemes import UserLoginInput, UserRegisterInput
-from src.domain.models import User, UserID, UserData
+from src.domain.services import UserService, AuthService, CookiesService
+from src.domain.models import User, UserID
 
 load_dotenv()
 logging.basicConfig(
@@ -64,13 +63,36 @@ async def get_all_users(service: FromDishka[UserService]) -> list[User]:
     return await service.get_all_users()
 
 
-@router.post(
-    "/register/",
-    status_code=status.HTTP_201_CREATED,
-    summary="Register a new user",
+###
+@inject
+async def get_current_user(
+    request: Request,
+    user_service: FromDishka[UserService],
+    auth_service: FromDishka[AuthService],
+    cookie_service: FromDishka[CookiesService],
+) -> User:
+    access_token = cookie_service.get_access_token(request=request)
+    logging.warning(f"API: access_token: {str(access_token)}")
+
+    user_id = auth_service.get_user_id_by_access_token(
+        access_token=access_token
+    )
+    logging.warning(f"API: user_id: {user_id}, type {type({user_id})}")
+
+    user = await user_service.get_user_by_id(user_id=user_id)
+    logging.warning(f"API: user: {user}")
+    return user
+
+
+###
+
+
+@router.get(
+    "/me",
+    summary="Get current user information",
+    response_model_exclude_none=True,
 )
-async def register(
-    user_input: UserRegisterInput, service: FromDishka[UserService]
-) -> UserID:
-    user_id = await service.register_user(user_data=user_input.to_model())
-    return user_id
+async def get_current_user_information(
+    user: User = Depends(get_current_user),
+) -> User:
+    return user

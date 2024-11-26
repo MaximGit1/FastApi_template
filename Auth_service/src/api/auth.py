@@ -3,11 +3,23 @@ from fastapi import APIRouter, HTTPException, status, Response, Request
 import logging
 
 
-from src.domain.models import AccessToken, RefreshToken, User
+from src.domain.models import AccessToken, RefreshToken, User, UserID
 from src.domain.services import AuthService, UserService, CookiesService
-from src.adapters.schemes import UserLoginInput
+from src.adapters.schemes import UserLoginInput, UserRegisterInput
 
 router = APIRouter(prefix="/auth", tags=["Auth"], route_class=DishkaRoute)
+
+
+@router.post(
+    "/register/",
+    status_code=status.HTTP_201_CREATED,
+    summary="Register a new user",
+)
+async def register(
+    user_input: UserRegisterInput, service: FromDishka[UserService]
+) -> UserID:
+    user_id = await service.register_user(user_data=user_input.to_model())
+    return user_id
 
 
 @router.post(

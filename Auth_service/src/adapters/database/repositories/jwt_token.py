@@ -19,13 +19,14 @@ from src.domain.models import (
     User,
     Roles,
     AccessPayload,
+    UserID,
 )
 from src.domain.protocols import JWTProtocol
 
 
 load_dotenv()
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.WARNING,
     filename=getenv("LOGS_PATH"),
     format="JWTRepository: %(name)s :: %(levelname)s :: %(message)s",
     encoding="utf-8",
@@ -122,12 +123,12 @@ class JWTRepository(JWTProtocol):
     #     return payload
 
     def generate_access_token(self, payload: AccessPayload) -> AccessToken:
-        token_payload = self._generate_token_payload(
+        token_payload: dict = self._generate_token_payload(
             token_type=TokenTypes.RefreshToken
         )
         payload = {
-            "sub": payload.sub,
-            "type": token_payload["type"],
+            "sub": str(payload.sub),
+            "type": TokenTypes.AccessToken.value,
             "exp": token_payload["exp"],
         }
         access_token = encode(
@@ -151,13 +152,27 @@ class JWTRepository(JWTProtocol):
         return {"exp": expire, "type": token_type}
 
     def parse_token(self, token: AccessToken) -> AccessPayload | NoReturn:
-        payload: AccessPayload = decode(
-            token.token,
-            self.__public_key,
-            algorithms=[self.__algorithm],
-            options={"verify_exp": True},
-        )
-        now = datetime.utcnow()
-        if (payload.token_type != token.token_type) or payload.exp < now:
-            raise InvalidTokenError("Invalid token")
-        return payload
+        try:
+            payload: dict = decode(
+                token.token,
+                self.__public_key,
+                algorithms=[self.__algorithm],
+                options={"verify_exp": True},
+            )
+            now = datetime.utcnow()
+            logging.warning(payload["exp"], type(payload["exp"]))
+            if (payload["type"] != token.token_type) or (
+                payload["exp"] < int(now.timestamp())
+            ):
+                logging.error(
+                    'payload["type"] != token.token_type) or int(payload["exp"]) < int(now)'
+                )
+                raise InvalidTokenError("Invalid token")
+
+            return AccessPayload(
+                sub=UserID(payload["sub"]),
+                exp=payload["exp"],
+                token_type=payload["type"],
+            )
+        except Exception as e:
+            logging.error(e)
