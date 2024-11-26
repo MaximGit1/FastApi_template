@@ -21,16 +21,21 @@ from src.adapters.database.repositories import (
     UserRepository,
     JWTRepository,
     SaltRepository,
+    CookieRepository,
 )
 from src.domain.protocols import (
-    JWTGenerator,
-    # UserUpdaterProtocol,
-    UserReaderProtocol,
-    UserCreatorProtocol,
+    JWTProtocol,
     UoWProtocol,
     SaltProtocol,
+    UserDAOProtocol,
+    CookieProtocol,
 )
-from src.domain.services import UserService, AuthService, SaltService
+from src.domain.services import (
+    UserService,
+    AuthService,
+    SaltService,
+    CookiesService,
+)
 
 DBURI = NewType("DBURI", str)
 
@@ -79,13 +84,16 @@ def repository_provider() -> Provider:
     provider.provide(
         UserRepository,
         scope=Scope.REQUEST,
-        provides=AnyOf[UserReaderProtocol, UserCreatorProtocol],
+        provides=UserDAOProtocol,
     )
-    provider.provide(JWTRepository, scope=Scope.REQUEST, provides=JWTGenerator)
+    provider.provide(JWTRepository, scope=Scope.REQUEST, provides=JWTProtocol)
     provider.provide(
         SaltRepository,
         scope=Scope.REQUEST,
         provides=SaltProtocol,
+    )
+    provider.provide(
+        CookieRepository, scope=Scope.REQUEST, provides=CookieProtocol
     )
     return provider
 
@@ -95,6 +103,7 @@ def service_provider() -> Provider:
     provider.provide(AuthService, scope=Scope.REQUEST)
     provider.provide(UserService, scope=Scope.REQUEST)
     provider.provide(SaltService, scope=Scope.REQUEST)
+    provider.provide(CookiesService, scope=Scope.REQUEST)
     return provider
 
 

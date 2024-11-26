@@ -1,4 +1,7 @@
-from .users import UserInput, LoginInput, TokenResponse
+from .users import UserLoginInput, UserRegisterInput
 
 
-__all__ = ("UserInput", "LoginInput", "TokenResponse")
+__all__ = (
+    "UserLoginInput",
+    "UserRegisterInput",
+)

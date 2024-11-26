@@ -1,29 +1,24 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, Field
 
-from src.domain.models import User, Roles
+from src.domain.models import UserData
 
 
-class UserInput(BaseModel):
-    id: int | None = None
-    username: str
-    password: bytes | str
-    email: str
+class UserLoginInput(BaseModel):
+    username: str = Field(min_length=2, max_length=15)
+    password: str = Field(min_length=8, max_length=32)
 
-    def to_model(self) -> User:
-        return User(
-            id=self.id if self.id else None,
+    def to_model(self) -> UserData:
+        return UserData(
             username=self.username,
-            hashed_password=self.password,
-            email=self.email,
-            role=Roles.USER,
+            password=self.password,
+            email=None,
         )
 
 
-class LoginInput(BaseModel):
-    username: str
-    password: str
+class UserRegisterInput(UserLoginInput):
+    email: EmailStr = Field(min_length=10, max_length=55)
 
-
-class TokenResponse(BaseModel):
-    access_token: str
-    refresh_token: str
+    def to_model(self) -> UserData:
+        user_data = super().to_model()
+        user_data.email = self.email
+        return user_data

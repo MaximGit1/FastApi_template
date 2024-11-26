@@ -1,10 +1,10 @@
-from .permissions import Permissions as Permissions
-from .roles import Roles as Roles
-from .user import User as User
-
+from .roles import Role, Roles
+from .user import User, UserData, UserID
 
 __all__ = (
-    "Permissions",
+    "Role",
     "Roles",
     "User",
+    "UserData",
+    "UserID",
 )

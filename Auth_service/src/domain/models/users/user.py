@@ -1,14 +1,24 @@
 from dataclasses import dataclass
+from typing import NewType
 
-from .roles import Roles
+from .roles import Role
+
+
+UserID = NewType("UserID", int)
 
 
 @dataclass
 class User:
     username: str | None
-    id: int | None = None
+    id: UserID | None = None
     email: str | None = None
     hashed_password: bytes | None = None
-    role: Roles | None = None
+    role: Role | None = None
     is_active: bool | None = True
-    is_super_user: bool | None = False
+
+
+@dataclass
+class UserData:
+    username: str | None
+    email: str | None
+    password: str

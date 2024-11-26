@@ -1,12 +1,15 @@
 from abc import abstractmethod
 from typing import Protocol
 
-from src.domain.models import User
+from src.domain.models import User, UserID, UserData
 
 
-class UserReaderProtocol(Protocol):
+class UserDAOProtocol(Protocol):
     @abstractmethod
-    async def get_user_by_id(self, user_id: int) -> User | None: ...
+    async def create_user(self, user_data: UserData) -> UserID: ...
+
+    @abstractmethod
+    async def get_user_by_id(self, user_id: UserID) -> User | None: ...
 
     @abstractmethod
     async def get_user_by_username(self, username: str) -> User | None: ...
@@ -15,9 +18,6 @@ class UserReaderProtocol(Protocol):
     async def get_all_users(self) -> list[User]: ...
 
     @abstractmethod
-    async def get_login_user_data_by_username(
+    async def get_user_all_data_by_username(
         self, username: str
     ) -> User | None: ...
-
-    # @abstractmethod
-    # async def get_user_data_by_access_token(self, access_token: TokenData) -> User: ...

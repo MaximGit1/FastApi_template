@@ -1,25 +1,29 @@
-from typing import ClassVar, Set
+from dataclasses import dataclass
+from typing import NewType
 from enum import Enum
 
-from .permissions import Permissions
+RoleLevel = NewType("RoleLevel", int)
+
+
+@dataclass
+class Role:
+    name: str
+    level: RoleLevel
 
 
 class Roles(Enum):
-    GUEST: ClassVar[Set[Permissions]] = {
-        Permissions.CAN_VIEW_RESOURCE,
-        Permissions.CAN_VIEW_RESOURCE_DETAIL,
-    }
-    USER: ClassVar[Set[Permissions]] = {
-        *GUEST,
-        Permissions.CAN_CREATE_RESOURCE,
-        Permissions.CAN_UPDATE_OWN_RESOURCE,
-        Permissions.CAN_DELETE_OWN_RESOURCE,
-    }
-    ADMIN: ClassVar[Set[Permissions]] = {
-        *USER,
-        Permissions.CAN_UPDATE_RESOURCE,
-        Permissions.CAN_DELETE_RESOURCE,
-    }
+    Guest = Role(name="guest", level=RoleLevel(0))
+    User = Role(name="user", level=RoleLevel(1))
+    Employer = Role(name="employer", level=RoleLevel(2))
+    Admin = Role(name="admin", level=RoleLevel(3))
+    SuperUser = Role(name="superUser", level=RoleLevel(4))
 
-    def has_permission(self, permission: Permissions) -> bool:
-        return permission in self.value
+    @classmethod
+    def get_role_by_name(cls, name: str) -> Role:
+        roles = cls._member_map_
+        for role in (role for role in roles):
+            if name.lower() == role.lower():
+                print(name, role)
+                return roles[role].value
+
+        return cls.Guest.value

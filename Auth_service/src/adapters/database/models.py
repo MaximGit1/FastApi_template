@@ -33,9 +33,8 @@ users_table = Table(
     Column("username", String(25), nullable=False, unique=True),
     Column("email", String(55), nullable=False),
     Column("hashed_password", LargeBinary, nullable=False),
-    Column("role", String(5), nullable=False),
+    Column("role", String(10), nullable=False),
     Column("is_active", Boolean, nullable=False, default=True),
-    Column("is_super_user", Boolean, nullable=False, default=True),
     Column(
         "created_at",
         TIMESTAMP,

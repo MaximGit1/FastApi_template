@@ -1,24 +1,10 @@
 import logging
+from datetime import datetime, timedelta
 from os import getenv
 from dotenv import load_dotenv
 
-from src.domain.models import (
-    User,
-    TokenData,
-    TokenTypes,
-    AccessToken,
-    RefreshToken,
-)
-from src.domain.protocols import (
-    JWTGenerator,
-    UserReaderProtocol,
-    UoWProtocol,
-    UserCreatorProtocol,
-)
-
-from src.domain.models import TokenResponse
-from .salt import SaltService
-
+from src.domain.models import User, AccessToken, UserID, AccessPayload
+from src.domain.protocols import JWTProtocol
 
 load_dotenv()
 logging.basicConfig(
@@ -31,114 +17,53 @@ logging.basicConfig(
 
 
 class AuthService:
-    def __init__(
-        self,
-        jwt_generator: JWTGenerator,
-        user_reader: UserReaderProtocol,
-        user_saver: UserCreatorProtocol,
-        uow: UoWProtocol,
-        salt: SaltService,
-    ):
-        self._jwt = jwt_generator
-        self._reader = user_reader
-        self._saver = user_saver
-        self._uow = uow
-        self._salt = salt
+    def __init__(self, jwt_generator: JWTProtocol):
+        self._repository_generator = jwt_generator
 
-    def _verify_password(self, user: User, password: str) -> bool:
-        return self._salt.validate_password(
-            password=password,
-            hashed_password=user.hashed_password,
+    def login_user(self, user: User) -> AccessToken:
+        payload = self._create_user_data_payload(user=user)
+        access_token = self._generate_access_token(payload=payload)
+        return access_token
+
+    def get_user_id_by_access_token(
+        self, access_token: AccessToken
+    ) -> UserID | None:
+        payload = self._parse_access_token(access_token=access_token)
+        if self._validate_token_expire(payload=payload):
+            return payload.sub
+        return None
+
+    @staticmethod
+    def _validate_token_expire(payload: AccessPayload) -> bool:
+        """
+        Проверяет срок действия токена
+        """
+        expire = payload.exp
+        now = datetime.utcnow()
+        if expire and (expire > now):
+            return True
+        return False
+
+    def _parse_access_token(
+        self, access_token: AccessToken
+    ) -> AccessPayload | None:
+        return self._repository_generator.parse_token(token=access_token)
+
+    def _generate_access_token(self, payload: AccessPayload) -> AccessToken:
+        """
+        Получает payload с данными пользователя и дополняет данными access токена.
+        """
+        access_token = self._repository_generator.generate_access_token(
+            payload=payload,
         )
+        return access_token
 
-    async def register(self, username: str, email: str, password: str) -> User:
-        # hashed_password = self._salt.hash_password(password)
-        try:
-            user = await self._saver.create_user(
-                username=username, password=password, email=email
-            )
-            return user
-        except Exception as e:
-            logging.exception(f"register: {str(e)}")
-
-    async def login(self, username: str, password: str) -> TokenResponse:
+    @staticmethod
+    def _create_user_data_payload(user: User) -> AccessPayload:
         """
-        Authenticates the user and generates access and refresh tokens.
+        Получает пользователя и подготавливает данные пользователя для генерации jwt access token
         """
-        try:
-            user: User = await self._reader.get_login_user_data_by_username(
-                username
-            )
-            if not user or not user.is_active:
-                raise Exception("Invalid credentials or user is inactive.")
-        except Exception as e:
-            logging.exception(f"login, user not exist: {str(e)}")
-
-        try:
-            if not self._verify_password(user, password):
-                raise Exception("Invalid credentials.")
-        except Exception as e:
-            logging.exception(f"login, password do not validate: {str(e)}")
-
-        try:
-            access_token = self._jwt.create_token(
-                user=user, token_type=AccessToken
-            )
-            refresh_token = self._jwt.create_token(
-                user=user, token_type=RefreshToken
-            )
-
-            return TokenResponse(
-                access_token=access_token.token,
-                refresh_token=refresh_token.token,
-            )
-        except Exception as e:
-            logging.exception(f"login, token do not generated: {str(e)}")
-
-    async def logout(self, token_data: TokenData) -> None:
-        """
-        Validates and "revokes" a token (stateless logout).
-        If session-based storage is used, implement token revocation here.
-        """
-        # If logout is stateless, just validate the token and return.
-        try:
-            payload = self._jwt.decode_token(token_data)
-        except ValueError as e:
-            raise Exception(f"Invalid token: {str(e)}")
-
-        # Optionally: check the user_id or other claims in the payload.
-        if "sub" not in payload:
-            raise Exception("Invalid token payload.")
-
-    async def refresh(self, refresh_token: TokenData) -> TokenData:
-        """
-        Generates a new access token using a valid refresh token.
-        """
-        try:
-            payload = self._jwt.decode_token(refresh_token)
-            if payload["type"] != TokenTypes.Refresh:
-                logging.exception(
-                    'refresh: payload["type"] != TokenTypes.Refresh'
-                )
-                raise Exception("Invalid token type")
-        except ValueError as e:
-            logging.exception(f"refresh: {str(e)}")
-            raise Exception(f"Invalid refresh token")
-        try:
-            user = User(
-                id=payload["sub"],
-                username=None,
-                role=payload["permissions"],
-                is_active=payload["is_active"],
-                is_super_user=payload["is_super_user"],
-            )
-            new_access_token = self._jwt.create_token(
-                user=user, token_type=RefreshToken
-            )
-
-            return new_access_token
-        except Exception as e:
-            logging.exception(f"refresh: all func - {str(e)}")
-
-    def get_token_payload(self, token: TokenData) -> dict:
-        return self._jwt.get_token_payload(token=token)
+        payload = AccessPayload(
+            sub=user.id,
+        )
+        return payload

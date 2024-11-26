@@ -1,14 +1,14 @@
-from .users import UserCreatorProtocol, UserReaderProtocol, UserUpdaterProtocol
-from .tokens import JWTGenerator, JWTStorager
+from .jwt_token import JWTProtocol
+from .user import UserDAOProtocol
 from .salt import SaltProtocol
 from .uow import UoWProtocol
+from .cookie import CookieProtocol
+
 
 __all__ = (
-    "UserUpdaterProtocol",
-    "UserCreatorProtocol",
-    "UserReaderProtocol",
-    "JWTGenerator",
-    "SaltProtocol",
     "UoWProtocol",
-    "JWTStorager",
+    "JWTProtocol",
+    "SaltProtocol",
+    "CookieProtocol",
+    "UserDAOProtocol",
 )
