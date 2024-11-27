@@ -1,5 +1,5 @@
 from dishka.integrations.fastapi import DishkaRoute, FromDishka, inject
-from fastapi import APIRouter, HTTPException, status, Depends, Request
+from fastapi import APIRouter, HTTPException, Depends, Request
 from dotenv import load_dotenv
 from os import getenv
 import logging
@@ -17,15 +17,6 @@ logging.basicConfig(
 )
 
 router = APIRouter(prefix="/users", tags=["Users"], route_class=DishkaRoute)
-
-
-# @router.get("/", summary="Get all users", response_model_exclude_none=True)
-# async def get_all(service: FromDishka[UserService]) -> list[User]:
-#     try:
-#         results: list[User] = await service.get_all_users()
-#         return results
-#     except Exception as e:
-#         logging.exception(f"get_all: {str(e)}")
 
 
 @router.get(
@@ -63,28 +54,19 @@ async def get_all_users(service: FromDishka[UserService]) -> list[User]:
     return await service.get_all_users()
 
 
-###
 @inject
 async def get_current_user(
-    request: Request,
-    user_service: FromDishka[UserService],
-    auth_service: FromDishka[AuthService],
-    cookie_service: FromDishka[CookiesService],
+        request: Request,
+        user_service: FromDishka[UserService],
+        auth_service: FromDishka[AuthService],
+        cookie_service: FromDishka[CookiesService],
 ) -> User:
     access_token = cookie_service.get_access_token(request=request)
-    logging.warning(f"API: access_token: {str(access_token)}")
-
     user_id = auth_service.get_user_id_by_access_token(
         access_token=access_token
     )
-    logging.warning(f"API: user_id: {user_id}, type {type({user_id})}")
-
     user = await user_service.get_user_by_id(user_id=user_id)
-    logging.warning(f"API: user: {user}")
     return user
-
-
-###
 
 
 @router.get(
