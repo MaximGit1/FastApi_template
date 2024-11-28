@@ -85,21 +85,21 @@ class DBProvider(Provider):
             yield session
 
 
-# class APIMiddleware(Provider):
-#     @provide(scope=Scope.REQUEST)
-#     async def get_current_user(
-#             self,
-#             request: Request,
-#             user_service: UserService,
-#             auth_service: AuthService,
-#             cookie_service: CookiesService,
-#     ) -> User:
-#         access_token = cookie_service.get_access_token(request=request)
-#         user_id = auth_service.get_user_id_by_access_token(
-#             access_token=access_token
-#         )
-#         user = await user_service.get_user_by_id(user_id=user_id)
-#         return user
+class APIMiddleware(Provider):
+    @provide(scope=Scope.REQUEST)
+    async def get_current_user(
+            self,
+            request: Request,
+            user_service: UserService,
+            auth_service: AuthService,
+            cookie_service: CookiesService,
+    ) -> User:
+        access_token = cookie_service.get_access_token(request=request)
+        user_id = auth_service.get_user_id_by_access_token(
+            access_token=access_token
+        )
+        user = await user_service.get_user_by_id(user_id=user_id)
+        return user
 
 
 def repository_provider() -> Provider:
@@ -133,9 +133,9 @@ def service_provider() -> Provider:
 def init_async_container() -> AsyncContainer:
     providers = [
         DBProvider(),
-        # FastapiProvider(),
+        FastapiProvider(),
         repository_provider(),
         service_provider(),
-        # APIMiddleware(),
+        APIMiddleware(),
     ]
     return make_async_container(*providers)

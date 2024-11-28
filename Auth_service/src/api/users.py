@@ -75,6 +75,6 @@ async def get_current_user(
     response_model_exclude_none=True,
 )
 async def get_current_user_information(
-    user: User = Depends(get_current_user),
+    user: FromDishka[User],
 ) -> User:
     return user
