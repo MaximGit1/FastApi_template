@@ -1,6 +1,6 @@
 import os
 from collections.abc import AsyncIterator
-from typing import NewType
+from typing import NewType, NoReturn
 
 from dishka import (
     AnyOf,
@@ -8,7 +8,7 @@ from dishka import (
     Provider,
     Scope,
     make_async_container,
-    provide, FromDishka,
+    provide,
 )
 
 from dishka.integrations.fastapi import FastapiProvider
@@ -26,6 +26,8 @@ from src.adapters.database.repositories import (
     JWTRepository,
     SaltRepository,
     CookieRepository,
+    JWTIdentityProvider,
+    RoleRepository,
 )
 from src.domain.models import User
 from src.domain.protocols import (
@@ -34,6 +36,8 @@ from src.domain.protocols import (
     SaltProtocol,
     UserDAOProtocol,
     CookieProtocol,
+    IdentityProvider,
+    RoleProtocol,
 )
 from src.domain.services import (
     UserService,
@@ -85,21 +89,33 @@ class DBProvider(Provider):
             yield session
 
 
-class APIMiddleware(Provider):
-    @provide(scope=Scope.REQUEST)
-    async def get_current_user(
-            self,
-            request: Request,
-            user_service: UserService,
-            auth_service: AuthService,
-            cookie_service: CookiesService,
-    ) -> User:
-        access_token = cookie_service.get_access_token(request=request)
-        user_id = auth_service.get_user_id_by_access_token(
-            access_token=access_token
-        )
-        user = await user_service.get_user_by_id(user_id=user_id)
-        return user
+# class APIMiddleware(Provider):
+#     @provide(scope=Scope.REQUEST)
+#     async def get_current_user(
+#             self,
+#             request: Request,
+#             user_service: UserService,
+#             auth_service: AuthService,
+#             cookie_service: CookiesService,
+#     ) -> User:
+#         access_token = cookie_service.get_access_token(request=request)
+#         user_id = auth_service.get_user_id_by_access_token(
+#             access_token=access_token
+#         )
+#         user = await user_service.get_user_by_id(user_id=user_id)
+#         return user
+#
+#     async def verify_admin_role(self) -> None | NoReturn:
+#         user: User = await self.get_current_user()
+#         if user and user.role.level >= 3:
+#             return None
+#         raise Exception
+#
+#     async def verify_user_role(self) -> None | NoReturn:
+#         user: User = await self.get_current_user()
+#         if user and user.role.level >= 3:
+#             return None
+#         raise Exception
 
 
 def repository_provider() -> Provider:
@@ -118,6 +134,13 @@ def repository_provider() -> Provider:
     provider.provide(
         CookieRepository, scope=Scope.REQUEST, provides=CookieProtocol
     )
+    provider.provide(
+        JWTIdentityProvider, scope=Scope.REQUEST, provides=IdentityProvider
+    )
+    provider.provide(
+        RoleRepository, scope=Scope.REQUEST, provides=RoleProtocol
+    )
+
     return provider
 
 
@@ -136,6 +159,6 @@ def init_async_container() -> AsyncContainer:
         FastapiProvider(),
         repository_provider(),
         service_provider(),
-        APIMiddleware(),
+        # APIMiddleware(),
     ]
     return make_async_container(*providers)

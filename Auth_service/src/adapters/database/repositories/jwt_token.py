@@ -26,7 +26,7 @@ from src.domain.protocols import JWTProtocol
 
 load_dotenv()
 logging.basicConfig(
-    level=logging.WARNING,
+    level=logging.ERROR,
     filename=getenv("LOGS_PATH"),
     format="JWTRepository: %(name)s :: %(levelname)s :: %(message)s",
     encoding="utf-8",

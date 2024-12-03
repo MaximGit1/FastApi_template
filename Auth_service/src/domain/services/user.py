@@ -3,13 +3,22 @@ from os import getenv
 from typing import NoReturn
 
 from dotenv import load_dotenv
+from starlette.requests import Request
 
-from src.domain.models import User, UserData, UserID
-from src.domain.protocols import UserDAOProtocol, SaltProtocol, UoWProtocol
+from src.domain.errors import user_error
+from src.domain.models import User, UserData, UserID, Role
+from src.domain.protocols import (
+    UserDAOProtocol,
+    SaltProtocol,
+    UoWProtocol,
+    IdentityProvider,
+    RoleProtocol,
+)
+from src.domain.errors import user_error
 
 load_dotenv()
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.WARNING,
     filename=getenv("LOGS_PATH"),
     format="UserService: %(name)s :: %(levelname)s :: %(message)s",
     encoding="utf-8",
@@ -22,10 +31,14 @@ class UserService:
         self,
         user_repository: UserDAOProtocol,
         salt_repository: SaltProtocol,
+        role_repository: RoleProtocol,
+        idp: IdentityProvider,
         uow: UoWProtocol,
     ):
         self._user_repository = user_repository
         self._salt_repository = salt_repository
+        self._role_repository = role_repository
+        self._idp = idp
         self._uow = uow
 
     async def register_user(self, user_data: UserData) -> UserID:
@@ -76,3 +89,31 @@ class UserService:
             username=username
         )
         return user
+
+    async def get_current_user(self, request: Request):
+        try:
+            if not (user_id := self._idp.get_current_user_id(request=request)):
+                raise user_error.USER_NOT_EXISTS
+            logging.warning(f"user_id: {user_id}, {type(user_id)}")
+            return await self._user_repository.get_user_by_id(
+                user_id=int(user_id)
+            )
+        except Exception as e:
+            logging.error(f"get_current_user: {str(e)}")
+
+    async def verify_authorized_user(self, request: Request) -> bool:
+        role = await self._idp.get_current_user_role(request=request)
+        if (role is None) or (not self._role_repository.from_user(role=role)):
+            logging.error(
+                f"{type(role)} {role} {self._role_repository.from_user(role)}"
+            )
+            return False
+        return True
+
+    async def verify_employee(self, request: Request) -> bool:
+        role = await self._idp.get_current_user_role(request=request)
+        if (role is None) or (
+            not self._role_repository.from_employee(role=role)
+        ):
+            return False
+        return True

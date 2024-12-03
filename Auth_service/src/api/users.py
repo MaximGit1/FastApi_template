@@ -6,10 +6,11 @@ import logging
 
 from src.domain.services import UserService, AuthService, CookiesService
 from src.domain.models import User, UserID
+from src.domain.errors import user_error
 
 load_dotenv()
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.WARNING,
     filename=getenv("LOGS_PATH"),
     format="API: %(name)s :: %(levelname)s :: %(message)s",
     encoding="utf-8",
@@ -26,8 +27,12 @@ router = APIRouter(prefix="/users", tags=["Users"], route_class=DishkaRoute)
 )
 async def get_user_by_id(
     user_id: UserID,
+    request: Request,
     service: FromDishka[UserService],
 ) -> User:
+    if not await service.verify_employee(request=request):
+        raise user_error.USER_DO_NOT_HAS_THIS_PERMISSION
+
     user = await service.get_user_by_id(user_id=user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found.")
@@ -54,27 +59,13 @@ async def get_all_users(service: FromDishka[UserService]) -> list[User]:
     return await service.get_all_users()
 
 
-@inject
-async def get_current_user(
-        request: Request,
-        user_service: FromDishka[UserService],
-        auth_service: FromDishka[AuthService],
-        cookie_service: FromDishka[CookiesService],
-) -> User:
-    access_token = cookie_service.get_access_token(request=request)
-    user_id = auth_service.get_user_id_by_access_token(
-        access_token=access_token
-    )
-    user = await user_service.get_user_by_id(user_id=user_id)
-    return user
-
-
 @router.get(
     "/me",
     summary="Get current user information",
     response_model_exclude_none=True,
 )
 async def get_current_user_information(
-    user: FromDishka[User],
+    request: Request,
+    user_service: FromDishka[UserService],
 ) -> User:
-    return user
+    return await user_service.get_current_user(request=request)
