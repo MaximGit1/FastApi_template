@@ -21,7 +21,15 @@ def _setup_container(app: FastAPI, /) -> None:
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(lifespan=_lifespan, title="Auth service")
+    app = FastAPI(
+        lifespan=_lifespan,
+        title="Auth service",
+        description="Users & Auth",
+        version="1.0.0",
+        docs_url="/auth-docs",
+        redoc_url="/redoc",
+        openapi_url="/openapi.json",
+    )
     _setup_container(app)
     app.include_router(global_router)
     map_tables()
