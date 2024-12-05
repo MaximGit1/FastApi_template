@@ -16,7 +16,15 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(lifespan=lifespan)
+    app = FastAPI(
+        lifespan=lifespan,
+        title="Frogs service",
+        description="Frogs & Frogs!",
+        version="1.0.0",
+        docs_url="/frogs-docs",
+        redoc_url="/redoc",
+        openapi_url="/openapi.json",
+    )
     app.include_router(frogs.router)
     app.include_router(index.router)
     container = init_async_container()
