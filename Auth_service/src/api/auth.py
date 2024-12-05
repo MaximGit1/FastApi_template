@@ -2,8 +2,8 @@ from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, HTTPException, status, Response, Request
 import logging
 
-
-from src.domain.models import AccessToken, RefreshToken, User, UserID
+from src.domain.errors import user_error
+from src.domain.models import AccessToken, RefreshToken, User, UserID, Role
 from src.domain.services import AuthService, UserService, CookiesService
 from src.adapters.schemes import UserLoginInput, UserRegisterInput
 
@@ -71,3 +71,30 @@ async def logout(
     response: Response, service: FromDishka[CookiesService]
 ) -> None:
     service.delete_access_token(response=response)
+
+
+@router.get(
+    "/me",
+    summary="Get current user information",
+    response_model_exclude_none=True,
+)
+async def get_current_user_information(
+    request: Request,
+    user_service: FromDishka[UserService],
+) -> User:
+    return await user_service.get_current_user(request=request)
+
+
+@router.post("/validate-role/")
+async def validate_current_user_permission(
+    role: Role,
+    request: Request,
+    service: FromDishka[UserService],
+) -> bool:
+    user = await service.get_current_user(request=request)
+    if not user:
+        raise user_error.USER_NOT_EXISTS
+    if (user.role.level >= role.level) and (user.role.name == role.name):
+        print(user.role, role)
+        return True
+    return False

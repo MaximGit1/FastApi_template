@@ -57,30 +57,3 @@ async def get_user_by_username(
 )
 async def get_all_users(service: FromDishka[UserService]) -> list[User]:
     return await service.get_all_users()
-
-
-@router.get(
-    "/me",
-    summary="Get current user information",
-    response_model_exclude_none=True,
-)
-async def get_current_user_information(
-    request: Request,
-    user_service: FromDishka[UserService],
-) -> User:
-    return await user_service.get_current_user(request=request)
-
-
-@router.post("/validate-role/")
-async def validate_current_user_permission(
-    role: Role,
-    request: Request,
-    service: FromDishka[UserService],
-) -> bool:
-    user = await service.get_current_user(request=request)
-    if not user:
-        raise user_error.USER_NOT_EXISTS
-    if (user.role.level >= role.level) and (user.role.name == role.name):
-        print(user.role, role)
-        return True
-    return False
