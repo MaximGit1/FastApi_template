@@ -5,7 +5,7 @@ from os import getenv
 import logging
 
 from src.domain.services import UserService, AuthService, CookiesService
-from src.domain.models import User, UserID
+from src.domain.models import User, UserID, Role
 from src.domain.errors import user_error
 
 load_dotenv()
@@ -69,3 +69,18 @@ async def get_current_user_information(
     user_service: FromDishka[UserService],
 ) -> User:
     return await user_service.get_current_user(request=request)
+
+
+@router.post("/validate-role/")
+async def validate_current_user_permission(
+    role: Role,
+    request: Request,
+    service: FromDishka[UserService],
+) -> bool:
+    user = await service.get_current_user(request=request)
+    if not user:
+        raise user_error.USER_NOT_EXISTS
+    if (user.role.level >= role.level) and (user.role.name == role.name):
+        print(user.role, role)
+        return True
+    return False
